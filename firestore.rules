@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Firestore güvenlik kuralları: veritabanına kimin, neyi okuyup yazabileceğini belirler.
+// Burada izin verilmeyen her şey otomatik olarak YASAKTIR.
+// NOT: Gün 1 sürümü. bolumler, hareketler ve yönetici kuralları sonraki günlerde eklenecek.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function girisYapti() {
+      return request.auth != null;
+    }
+
+    match /kullanicilar/{uid} {
+      // Kullanıcı yalnızca kendi dokümanını okuyabilir.
+      allow read: if girisYapti() && request.auth.uid == uid;
+
+      // Kayıtta: yalnızca kendi uid'siyle, yalnızca "personel" rolüyle,
+      // yalnızca beklenen alanlarla ve boş bölüm bilgisiyle doküman oluşturabilir.
+      allow create: if girisYapti()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(
+             ['adSoyad', 'eposta', 'gorev', 'rol', 'suAnkiBolumId', 'suAnkiBolumAdi', 'girisZamani'])
+        && request.resource.data.rol == 'personel'
+        && request.resource.data.adSoyad is string
+        && request.resource.data.gorev is string
+        && request.resource.data.eposta == request.auth.token.email
+        && request.resource.data.suAnkiBolumId == null
+        && request.resource.data.suAnkiBolumAdi == null
+        && request.resource.data.girisZamani == null;
+    }
+  }
+}

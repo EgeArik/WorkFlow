@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'ekranlar/gecici_ana_sayfa.dart';
+import 'ekranlar/giris_ekrani.dart';
 // flutterfire configure komutunun ürettiği dosya: Firebase proje bilgilerini içerir.
 import 'firebase_options.dart';
+import 'servisler/auth_servisi.dart';
+import 'tema.dart';
 
 // main(): uygulama açıldığında çalışan ilk fonksiyon.
 // "async" yazdık çünkü içinde Firebase'in hazır olmasını "await" ile bekliyoruz.
@@ -26,41 +31,30 @@ class WorkFlowApp extends StatelessWidget {
     return MaterialApp(
       title: 'WorkFlow',
       debugShowCheckedModeBanner: false, // sağ üstteki "DEBUG" şeridini gizler
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2563EB)),
-        scaffoldBackgroundColor: const Color(0xFFF4F6FA),
-      ),
-      home: const FirebaseTestEkrani(),
+      theme: uygulamaTemasi(),
+      home: const OturumKapisi(),
     );
   }
 }
 
-// Geçici test ekranı: Firebase bağlantısının çalıştığını gösterir.
-// Bir sonraki adımda yerini Giriş ekranı alacak.
-class FirebaseTestEkrani extends StatelessWidget {
-  const FirebaseTestEkrani({super.key});
+// Oturum kapısı: kullanıcı giriş yapmış mı bakar ve doğru ekranı gösterir.
+// Firebase oturumu telefonda saklar; uygulama kapanıp açılsa da oturum açık kalır.
+class OturumKapisi extends StatelessWidget {
+  const OturumKapisi({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Firebase.app() başlatılmış uygulamayı verir; projectId ile hangi projeye bağlı olduğumuzu görürüz.
-    final projeKimligi = Firebase.app().options.projectId;
-
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.check_circle, color: Color(0xFF15803D), size: 72),
-            const SizedBox(height: 16),
-            const Text(
-              'Firebase bağlantısı hazır',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Proje: $projeKimligi'),
-          ],
-        ),
-      ),
+    return StreamBuilder<User?>(
+      stream: AuthServisi().oturumDegisiklikleri,
+      builder: (context, snapshot) {
+        // Firebase oturumu kontrol ederken kısa bir an yükleniyor göster.
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        // snapshot.data: giriş yapmış kullanıcı (yoksa null).
+        if (snapshot.data == null) return const GirisEkrani();
+        return const GeciciAnaSayfa();
+      },
     );
   }
 }
