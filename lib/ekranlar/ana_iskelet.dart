@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../modeller/kullanici.dart';
+import '../servisler/hareket_servisi.dart';
+import '../tema.dart';
 import '../widgetlar/yakinda_ekrani.dart';
 import 'ana_sayfa.dart';
 import 'profil_ekrani.dart';
+import 'qr_tara_ekrani.dart';
+import 'yonetim/bolumler_ekrani.dart';
 
 // İskelet: alt menü (NavigationBar) + seçili sekmenin ekranı.
 // Menüdeki sekmeler kullanıcının rolüne göre değişir:
@@ -30,27 +34,42 @@ class _Sekme {
 class _AnaIskeletState extends State<AnaIskelet> {
   int _seciliSira = 0; // şu an açık olan sekmenin sırası (0 = ilk sekme)
 
+  @override
+  void initState() {
+    super.initState();
+    _eskiKaydiKontrolEt();
+  }
+
+  // ÇIKIŞI UNUTMA: uygulama açılınca, önceki günden açık kalmış bir giriş varsa
+  // sessizce otomatik çıkış yapılır ve kullanıcıya kısa bir bilgi gösterilir.
+  Future<void> _eskiKaydiKontrolEt() async {
+    try {
+      final kapatilan = await HareketServisi().eskiAcikKaydiKapat(widget.kullanici);
+      if (kapatilan == null || !mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Önceki günden açık kalan "$kapatilan" girişiniz otomatik kapatıldı.'),
+        backgroundColor: Renkler.uyari,
+      ));
+    } catch (_) {
+      // İnternet yoksa sorun değil; bir sonraki açılışta tekrar denenir.
+    }
+  }
+
   // Ana sayfadaki "QR Okut" butonu bu fonksiyonla QR Tara sekmesine geçer.
   void _qrSekmesineGec() => setState(() => _seciliSira = 1);
+  void _anaSayfayaGec() => setState(() => _seciliSira = 0);
 
   List<_Sekme> _sekmeleriOlustur() {
     final k = widget.kullanici; // "widget." ile StatefulWidget'a verilen bilgiye ulaşırız
     return [
       _Sekme('Ana Sayfa', Icons.home_outlined, Icons.home,
           AnaSayfa(kullanici: k, qrOkutTiklandi: _qrSekmesineGec)),
-      const _Sekme('QR Tara', Icons.qr_code_scanner, Icons.qr_code_scanner,
-          YakindaEkrani(
-              baslik: 'QR Tara',
-              ikon: Icons.qr_code_scanner,
-              aciklama: 'QR okutma Gün 3\'te eklenecek.')),
+      _Sekme('QR Tara', Icons.qr_code_scanner, Icons.qr_code_scanner,
+          QrTaraEkrani(uid: k.uid, geriTiklandi: _anaSayfayaGec)),
       // "if" ile listeye koşullu eleman ekleriz: Yönetim sekmesi sadece yöneticide var.
       if (k.yoneticiMi)
         const _Sekme('Yönetim', Icons.admin_panel_settings_outlined,
-            Icons.admin_panel_settings,
-            YakindaEkrani(
-                baslik: 'Yönetim',
-                ikon: Icons.admin_panel_settings_outlined,
-                aciklama: 'Yönetim ekranları Gün 5 ve 6\'da eklenecek.')),
+            Icons.admin_panel_settings, BolumlerEkrani()),
       const _Sekme('Geçmiş', Icons.history, Icons.history,
           YakindaEkrani(
               baslik: 'Geçmiş',

@@ -14,7 +14,10 @@ lib/
 │   └── hareket.dart
 ├── servisler/                Firebase ile konuşan kodlar
 │   ├── auth_servisi.dart     Giriş, kayıt, çıkış
-│   └── veri_servisi.dart     Firestore'dan canlı veri okuma
+│   ├── veri_servisi.dart     Firestore'dan canlı veri okuma
+│   ├── hareket_servisi.dart  QR okutma: giriş/çıkış/geçiş (transaction)
+│   ├── bolum_servisi.dart    Bölüm listeleme ve ekleme
+│   └── pdf_servisi.dart      Bölüm QR'ı için A4 PDF
 ├── ekranlar/                 Tam sayfa ekranlar
 │   ├── giris_ekrani.dart
 │   ├── kayit_ekrani.dart
@@ -142,5 +145,78 @@ Avatar, ad soyad, görev, rol, e-posta ve kırmızı **Çıkış Yap** butonu. `
 ### `firestore.rules` (Gün 2 eklemesi)
 `hareketler` koleksiyonu için okuma kuralı: kişi yalnızca `kullaniciId` alanı kendi uid'si olan kayıtları okuyabilir. Yazma kuralları Gün 3'te eklenecek.
 
-### `firestore.indexes.json`
+### `firestore.indexes.json` (Gün 2)
 Firestore, birden fazla alana bakan sorgular için önceden hazırlanmış bir **indeks** (kitabın sonundaki dizin gibi) ister. Buradaki indeks "kullaniciId'ye göre filtrele, zamana göre sırala" sorgusunu hızlı ve mümkün kılar. `firebase deploy` komutuyla Firebase'e yüklendi.
+
+---
+
+## Gün 3 dosyaları – QR okutma ve giriş/çıkış mantığı
+
+### Akış (projenin kalbi)
+
+```
+QR okutuldu: "workflow:bolum:abc123"
+   │
+   ├─ Önek yok mu? ─────────────────────────► "Geçersiz QR"
+   ├─ Aynı QR 10 sn içinde mi okutuldu? ─────► "Az önce okutuldu" (kayıt yok)
+   │
+   └─ TRANSACTION başlar (ya hepsi ya hiçbiri)
+        ├─ Bölüm yok / pasif mi? ────────────► "Geçersiz QR" / "Bölüm pasif"
+        ├─ suAnkiBolumId boş     → GİRİŞ      (giris kaydı + kullanıcıya bölüm yaz)
+        ├─ suAnkiBolumId = bu    → ÇIKIŞ      (cikis kaydı + kullanıcının bölümünü temizle)
+        └─ suAnkiBolumId = başka → GEÇİŞ      (eskiye otomatik_cikis + yeniye giris)
+```
+
+### `modeller/bolum.dart`
+- **`Bolum`**: id, ad, aktif. `id` Firestore'un ürettiği rastgele kimliktir.
+- **`qrOneki`** = `"workflow:bolum:"`; **`qrIcerigi`** = önek + id. Bölüm adı değişse de QR geçerli kalır, çünkü QR'da ad değil id vardır.
+
+### `servisler/hareket_servisi.dart`
+- **`qrOkut()`**: Yukarıdaki akışı uygular.
+  - **Transaction (`runTransaction`)**: İçindeki okuma ve yazmalar tek bir bütün gibi çalışır. İnternet yarıda kesilirse hiçbir şey yazılmaz; iki işlem aynı anda gelirse Firestore biri bitince diğerini baştan tekrar dener. Böylece "hareket yazıldı ama kullanıcının bölümü güncellenmedi" gibi yarım durumlar oluşmaz.
+  - **`FieldValue.serverTimestamp()`**: Zaman telefondan değil Google sunucusundan alınır; telefonun saati yanlış olsa bile kayıt doğrudur.
+  - **Çift okutma koruması**: Son başarılı okutmanın bölümü ve zamanı `static` değişkenlerde tutulur. `static` = tüm nesnelerin paylaştığı değişken; ekran kapanıp açılsa da silinmez.
+  - **`OkutmaHatasi`**: Reddedilen okutmalar için kendi hata sınıfımız. `bilgi: true` ise hata değil bilgi (turuncu).
+  - `FirebaseException` kodları (`unavailable` = internet yok, `permission-denied` = kural reddetti) Türkçe mesaja çevrilir.
+- **`eskiAcikKaydiKapat()`**: Önceki günden açık kalmış giriş varsa **batch** ile otomatik çıkış yazar. Batch, transaction gibi "ya hepsi ya hiçbiri"dir ama önce okuma yapmaz, sadece yazar.
+
+### `servisler/bolum_servisi.dart`
+- **`bolumlerAkisi()`**: Bölümleri ada göre sıralı, canlı listeler.
+- **`bolumEkle()`**: `add()` ile yeni bölüm ekler; Firestore rastgele kimlik üretir.
+
+### `servisler/pdf_servisi.dart`
+- **`qrPdfIndir()`**: A4 PDF oluşturup Android'in yazdırma ekranını açar (`Printing.layoutPdf`). "PDF olarak kaydet" seçilince dosya İndirilenler'e iner; depolama izni gerekmez.
+- **`pw.BarcodeWidget`**: QR'ı vektör olarak çizer; büyütülse de bulanıklaşmaz.
+- **`PdfGoogleFonts.notoSans...`**: Türkçe karakterli font. PDF'in varsayılan fontunda ç, ğ, ı, ş yoktur.
+- **`Uint8List`**: Bayt listesi; dosyanın ham içeriği.
+
+### `ekranlar/qr_tara_ekrani.dart`
+- **`MobileScannerController`**: Kamerayı yönetir; sadece QR formatını arar.
+- **`Stack`**: Widget'ları üst üste koyar: en altta kamera, üstünde çerçeve, flaş ve geri butonu, yazılar.
+- **`_qrBulundu()`**: Kamera QR görünce çalışır. `_isleniyor` ile aynı anda ikinci okutma engellenir; kamera durdurulur, servis çağrılır, titreşim verilir (`HapticFeedback`), sonuç ekranı açılır. **Başarılıysa Ana Sayfa'ya dönülür**; hata/bilgide kamera tekrar açılır.
+- **`ValueListenableBuilder`**: Flaşın açık/kapalı durumunu dinleyip ikonu günceller.
+- **`_KameraHatasi`**: Kamera izni reddedilirse açıklama gösterir.
+
+### `ekranlar/okutma_sonuc_ekrani.dart`
+- Tam ekran sonuç: giriş yeşil, çıkış mavi, geçiş yeşil, hata kırmızı, bilgi turuncu.
+- Tek seferlik **`Timer`** 2,5 sn sonra ekranı kapatır; ekrana dokununca hemen kapanır.
+- Bölüm adı ayrı satırda, eksiz yazılır: "A Bölümü" + "-e" gibi ekler her ada doğru uymaz.
+
+### `ekranlar/yonetim/bolumler_ekrani.dart` ve `bolum_qr_ekrani.dart`
+- Bölüm listesi, **Bölüm Ekle** (ad sorulur → kaydedilir → QR ekranı otomatik açılır), her bölümde **QR Kodu** butonu.
+- QR ekranı: bölüm adı, `QrImageView` ile büyük QR, **PDF olarak indir / yazdır** butonu.
+- Gün 5'te kişi sayısı, son okutma ve pasif yapma eklenecek.
+
+### `ekranlar/ana_iskelet.dart` (Gün 3 eklemeleri)
+- QR Tara sekmesi artık gerçek tarayıcı; Yönetim sekmesi Bölümler ekranı.
+- **`_eskiKaydiKontrolEt()`**: Uygulama açılınca (initState) unutulmuş çıkışı kontrol eder, kapattıysa turuncu bilgi gösterir.
+
+### `firestore.rules` (Gün 3)
+- **`yoneticiMi()`**: Kişinin kullanıcı dokümanındaki `rol` alanına bakar (`get()` ile başka doküman okunabilir).
+- **`aktifBolum()`**: Bölüm var ve aktif mi?
+- **Kullanıcı güncelleme**: `diff(...).affectedKeys().hasOnly([...])` → sadece bölüm alanları değişebilir; **rol asla değiştirilemez**. Bölüme giriliyorsa bölüm aktif olmalı ve giriş zamanı sunucu saati olmalı.
+- **Bölümler**: Herkes okur, sadece yönetici ekler/günceller. Silme kuralı yok = silmek yasak.
+- **Hareketler**: Sadece kendi adına, geçerli türde (`giris`, `cikis`, `otomatik_cikis`) ve `zaman == request.time` (sunucu saati) ile eklenebilir. Güncelleme/silme kuralı yok = kayıtlar değiştirilemez.
+
+### `pubspec.yaml` notu
+`image` paketi `<4.8.0` sürümüne sabitlendi: `pdf` paketi `archive` kütüphanesinin eski sürümünü, yeni `image` ise yenisini istiyordu; ikisi birlikte kurulamıyordu.

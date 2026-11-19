@@ -2,12 +2,24 @@ rules_version = '2';
 
 // Firestore güvenlik kuralları: veritabanına kimin, neyi okuyup yazabileceğini belirler.
 // Burada izin verilmeyen her şey otomatik olarak YASAKTIR.
-// NOT: Gün 2 sürümü. bolumler, hareket yazma ve yönetici kuralları sonraki günlerde eklenecek.
+// NOT: Gün 3 sürümü. Yöneticinin tüm kullanıcı/hareketleri okuması Gün 6'da eklenecek.
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function girisYapti() {
       return request.auth != null;
+    }
+
+    // Yönetici mi? Kişinin kendi kullanıcı dokümanındaki "rol" alanına bakılır.
+    function yoneticiMi() {
+      return girisYapti()
+        && get(/databases/$(database)/documents/kullanicilar/$(request.auth.uid)).data.rol == 'yonetici';
+    }
+
+    // Bölüm var ve aktif mi?
+    function aktifBolum(bolumId) {
+      let yol = /databases/$(database)/documents/bolumler/$(bolumId);
+      return exists(yol) && get(yol).data.aktif == true;
     }
 
     match /kullanicilar/{uid} {
@@ -27,13 +39,48 @@ service cloud.firestore {
         && request.resource.data.suAnkiBolumId == null
         && request.resource.data.suAnkiBolumAdi == null
         && request.resource.data.girisZamani == null;
+
+      // Güncelleme: kişi kendi dokümanında SADECE bölüm alanlarını değiştirebilir.
+      // diff(...).affectedKeys(): eski ve yeni doküman arasında değişen alanların listesi.
+      // Böylece "rol" alanı asla değiştirilemez.
+      allow update: if girisYapti()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['suAnkiBolumId', 'suAnkiBolumAdi', 'girisZamani'])
+        // Bir bölüme giriliyorsa o bölüm var ve aktif olmalı; giriş zamanı sunucu saati olmalı.
+        && (request.resource.data.suAnkiBolumId == null
+            || (aktifBolum(request.resource.data.suAnkiBolumId)
+                && request.resource.data.girisZamani == request.time));
+    }
+
+    match /bolumler/{bolumId} {
+      // Giriş yapmış herkes bölümleri okuyabilir (QR okutunca kontrol için gerekli).
+      allow read: if girisYapti();
+      // Yalnızca yönetici ekleyip güncelleyebilir. Silme kuralı yok = silmek yasak.
+      allow create, update: if yoneticiMi()
+        && request.resource.data.keys().hasOnly(['ad', 'aktif'])
+        && request.resource.data.ad is string
+        && request.resource.data.ad.size() > 0
+        && request.resource.data.aktif is bool;
     }
 
     match /hareketler/{hareketId} {
       // Personel yalnızca KENDİ hareketlerini okuyabilir.
-      // (Sorgu da "kullaniciId == kendi uid'm" filtresiyle yapılmalı, yoksa reddedilir.)
-      // Yazma kuralları Gün 3'te, yönetici okuma kuralı Gün 6'da eklenecek.
       allow read: if girisYapti() && resource.data.kullaniciId == request.auth.uid;
+
+      // Personel yalnızca KENDİ adına, geçerli türde ve SUNUCU saatiyle kayıt ekleyebilir.
+      // request.time: isteğin sunucuya ulaştığı an. serverTimestamp() ile yazılan zaman buna eşittir.
+      // Giriş kaydı sadece aktif bir bölüme yapılabilir.
+      // update/delete kuralı yok = kayıtlar değiştirilemez ve silinemez.
+      allow create: if girisYapti()
+        && request.resource.data.keys().hasOnly(
+             ['kullaniciId', 'kullaniciAdi', 'bolumId', 'bolumAdi', 'tur', 'zaman'])
+        && request.resource.data.kullaniciId == request.auth.uid
+        && request.resource.data.tur in ['giris', 'cikis', 'otomatik_cikis']
+        && request.resource.data.zaman == request.time
+        && request.resource.data.bolumId is string
+        && request.resource.data.bolumAdi is string
+        && (request.resource.data.tur != 'giris' || aktifBolum(request.resource.data.bolumId));
     }
   }
 }
