@@ -12,6 +12,17 @@ class Renkler {
   static const griYazi = Color(0xFF6B7280); // açıklama yazıları
 }
 
+// Beyaz, yuvarlatılmış köşeli, hafif gölgeli kart görünümü. Tüm kartlarda bunu kullanırız.
+BoxDecoration kartDekorasyonu() {
+  return BoxDecoration(
+    color: Renkler.kart,
+    borderRadius: BorderRadius.circular(16),
+    boxShadow: const [
+      BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4)),
+    ],
+  );
+}
+
 // ThemeData: uygulamadaki tüm buton, yazı alanı vb. için varsayılan görünüm.
 // Böylece her ekranda tek tek renk/boyut yazmamız gerekmez.
 ThemeData uygulamaTemasi() {

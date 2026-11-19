@@ -2,7 +2,7 @@ rules_version = '2';
 
 // Firestore güvenlik kuralları: veritabanına kimin, neyi okuyup yazabileceğini belirler.
 // Burada izin verilmeyen her şey otomatik olarak YASAKTIR.
-// NOT: Gün 1 sürümü. bolumler, hareketler ve yönetici kuralları sonraki günlerde eklenecek.
+// NOT: Gün 2 sürümü. bolumler, hareket yazma ve yönetici kuralları sonraki günlerde eklenecek.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -27,6 +27,13 @@ service cloud.firestore {
         && request.resource.data.suAnkiBolumId == null
         && request.resource.data.suAnkiBolumAdi == null
         && request.resource.data.girisZamani == null;
+    }
+
+    match /hareketler/{hareketId} {
+      // Personel yalnızca KENDİ hareketlerini okuyabilir.
+      // (Sorgu da "kullaniciId == kendi uid'm" filtresiyle yapılmalı, yoksa reddedilir.)
+      // Yazma kuralları Gün 3'te, yönetici okuma kuralı Gün 6'da eklenecek.
+      allow read: if girisYapti() && resource.data.kullaniciId == request.auth.uid;
     }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "hareketler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "kullaniciId", "order": "ASCENDING" },
+        { "fieldPath": "zaman", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
