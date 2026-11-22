@@ -100,10 +100,12 @@ class _SifreDegistirEkraniState extends State<SifreDegistirEkrani> {
                     (d == null || d.isEmpty) ? 'Mevcut şifrenizi girin' : null,
               ),
               _sifreAlani(_yeni, 'Yeni şifre', (d) {
-                if (d == null || d.length < 6)
+                if (d == null || d.length < 6) {
                   return 'Yeni şifre en az 6 karakter olmalı';
-                if (d == _mevcut.text)
+                }
+                if (d == _mevcut.text) {
                   return 'Yeni şifre eskisiyle aynı olamaz';
+                }
                 return null;
               }),
               _sifreAlani(

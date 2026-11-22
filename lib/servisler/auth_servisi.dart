@@ -72,8 +72,9 @@ class AuthServisi {
   }) async {
     final kullanici = _auth.currentUser;
     final eposta = kullanici?.email;
-    if (kullanici == null || eposta == null)
+    if (kullanici == null || eposta == null) {
       throw AuthHatasi('Oturum bulunamadı.');
+    }
     try {
       // credential: "bu e-posta ve şifre" bilgisini taşıyan kimlik belgesi.
       final kimlik = EmailAuthProvider.credential(

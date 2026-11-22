@@ -46,6 +46,15 @@ const _gunler = [
 String gunBasligi(DateTime zaman) =>
     '${zaman.day} ${_aylar[zaman.month - 1]} ${_gunler[zaman.weekday - 1]}';
 
+// Bugünse "09:12", değilse "19 Kas 09:12". Yönetim listelerinde son okutma/giriş için.
+String kisaZamanYaz(DateTime zaman) {
+  if (gunBaslangici(zaman) == gunBaslangici(DateTime.now())) {
+    return saatYaz(zaman);
+  }
+  final ay = _aylar[zaman.month - 1].substring(0, 3); // "Kasım" -> "Kas"
+  return '${zaman.day} $ay ${saatYaz(zaman)}';
+}
+
 // Sadece tarih kısmı (saat 00:00). İki kaydın aynı günde olup olmadığını anlamak için.
 DateTime gunBaslangici(DateTime zaman) =>
     DateTime(zaman.year, zaman.month, zaman.day);

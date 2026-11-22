@@ -7,7 +7,7 @@ import 'ana_sayfa.dart';
 import 'gecmis_ekrani.dart';
 import 'profil_ekrani.dart';
 import 'qr_tara_ekrani.dart';
-import 'yonetim/bolumler_ekrani.dart';
+import 'yonetim/yonetim_ekrani.dart';
 
 // İskelet: alt menü (NavigationBar) + seçili sekmenin ekranı.
 // Menüdeki sekmeler kullanıcının rolüne göre değişir:
@@ -87,7 +87,7 @@ class _AnaIskeletState extends State<AnaIskelet> {
           'Yönetim',
           Icons.admin_panel_settings_outlined,
           Icons.admin_panel_settings,
-          BolumlerEkrani(),
+          YonetimEkrani(),
         ),
       _Sekme('Geçmiş', Icons.history, Icons.history, GecmisEkrani(uid: k.uid)),
       _Sekme(

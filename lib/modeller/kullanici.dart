@@ -66,3 +66,7 @@ class Kullanici {
 // Dart'ın toUpperCase() fonksiyonu "i" harfini "I" yapar; Türkçede "İ" olmalı.
 String turkceBuyukHarf(String metin) =>
     metin.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+
+// Aynı sorun küçük harfte: "I" -> "ı", "İ" -> "i" olmalı. Aramada büyük/küçük harf farkını yok sayar.
+String turkceKucukHarf(String metin) =>
+    metin.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();

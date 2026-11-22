@@ -42,4 +42,27 @@ class VeriServisi {
         .snapshots()
         .map((sorgu) => sorgu.docs.map(Hareket.firestoredan).toList());
   }
+
+  // --- Yönetici için (Gün 5). Güvenlik kuralı bunları sadece yöneticiye izin verir. ---
+
+  // Tüm kullanıcılar, ada göre alfabetik, canlı.
+  Stream<List<Kullanici>> tumKullanicilarAkisi() {
+    return _db
+        .collection('kullanicilar')
+        .orderBy('adSoyad')
+        .snapshots()
+        .map((sorgu) => sorgu.docs.map(Kullanici.firestoredan).toList());
+  }
+
+  // Herkesin en yeni hareketleri (en yenisi en üstte).
+  // limit(): en fazla bu kadar doküman getirir; hepsini okumak yavaş ve pahalı olurdu.
+  // "Son okutma" ve "son giriş" saatleri bu listeden telefonda hesaplanır.
+  Stream<List<Hareket>> sonHareketlerAkisi({int adet = 300}) {
+    return _db
+        .collection('hareketler')
+        .orderBy('zaman', descending: true)
+        .limit(adet)
+        .snapshots()
+        .map((sorgu) => sorgu.docs.map(Hareket.firestoredan).toList());
+  }
 }

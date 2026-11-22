@@ -74,11 +74,13 @@ class HareketServisi {
         final kullaniciDok = await tx.get(kullaniciRef);
         final bolumDok = await tx.get(bolumRef);
 
-        if (!bolumDok.exists)
+        if (!bolumDok.exists) {
           throw OkutmaHatasi('Geçersiz QR. Böyle bir bölüm yok.');
+        }
         final bolum = Bolum.firestoredan(bolumDok);
-        if (!bolum.aktif)
+        if (!bolum.aktif) {
           throw OkutmaHatasi('${bolum.ad} pasif durumda. Okutma yapılamaz.');
+        }
 
         final kullanici = Kullanici.firestoredan(kullaniciDok);
         final suAnkiId = kullanici.suAnkiBolumId;

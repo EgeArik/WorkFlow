@@ -84,10 +84,12 @@ class _GirisEkraniState extends State<GirisEkrani> {
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                   validator: (deger) {
-                    if (deger == null || deger.trim().isEmpty)
+                    if (deger == null || deger.trim().isEmpty) {
                       return 'E-posta girin';
-                    if (!deger.contains('@'))
+                    }
+                    if (!deger.contains('@')) {
                       return 'Geçerli bir e-posta girin';
+                    }
                     return null; // null = hata yok
                   },
                 ),

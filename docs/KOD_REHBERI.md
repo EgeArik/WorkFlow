@@ -23,7 +23,8 @@ lib/
 │   ├── kayit_ekrani.dart
 │   ├── ana_iskelet.dart      Alt menü + sekmeler
 │   ├── ana_sayfa.dart
-│   └── profil_ekrani.dart
+│   ├── profil_ekrani.dart
+│   └── yonetim/              Yönetim sekmesi (alt sekmeler, personeller, bölümler, QR)
 ├── widgetlar/                Birden çok ekranda kullanılan küçük parçalar
 │   ├── workflow_logo.dart
 │   ├── bas_harf_avatar.dart
@@ -263,3 +264,46 @@ QR okutuldu: "workflow:bolum:abc123"
 - `firestore.rules` → **`gecmisOtomatikCikis()`**: Geçmiş bir zamana yazmaya izin veren **tek istisna**. Şartları: tür `otomatik_cikis`, bölüm kişinin şu anki bölümü, zaman **giriş ile giriş + 8 saat arasında** (`duration.value(8, 'h')`) ve şu andan önce. `get()` aynı batch'te kullanıcı dokümanı temizlenmeden **önceki** hâli okur. Diğer tüm kayıtlar hâlâ yalnızca sunucu saatiyle yazılabilir; böylece kimse rastgele bir tarihe kayıt ekleyemez.
 
 **Test:** Konsoldan kullanıcıya geçmiş bir giriş verildi (19 Kasım 09:00, Yemekhane) → uygulama yeniden açıldı → Geçmiş'te **19 Kasım 17:00 · Yemekhane · Otomatik çıkış** göründü (ekran görüntüsü: `gun4-gecmis-bu-hafta.png`).
+
+---
+
+## Gün 5 dosyaları – Yönetim: Personeller ve Bölümler
+
+### `ekranlar/yonetim/yonetim_ekrani.dart` (yeni)
+- Yönetim sekmesinin çatısı: **Genel, Personeller, Bölümler, Hareketler**. Genel ve Hareketler Gün 6'da dolacak; şimdilik "Gün 6'da eklenecek" yazıyor.
+- **`DefaultTabController`**: Üstteki sekme çubuğunu (`TabBar`) alttaki sayfalarla (`TabBarView`) bağlar; sekmeye basınca sayfa, sayfayı kaydırınca sekme değişir.
+- `initialIndex: 1` → açılışta Personeller gelir (Genel henüz boş).
+- `isScrollable: true`: Dar ekranda "Personeller" yazısı kesiliyordu; artık her sekme yazısı kadar geniş, sığmazsa yana kayar.
+
+### `ekranlar/yonetim/personeller_ekrani.dart` (yeni)
+- **Arama kutusu**: Her harfte liste süzülür (`onChanged` + `setState`). Büyük/küçük harf farkı yok sayılır.
+- **Bölüm filtresi**: "Tümü" + bölüm adları, **`ChoiceChip`** (aynı anda biri seçili) ile; `SingleChildScrollView(scrollDirection: Axis.horizontal)` sayesinde sığmazsa yana kayar.
+- Önce bölüm filtresi, sonra arama uygulanır (`where` iki kez): ikisine de uyan kişiler kalır.
+- **`_PersonelSatiri`**: avatar, ad soyad, şu anki bölüm (yoksa "Bölümde değil"), **son giriş**, **İçeride** (yeşil) / **Dışarıda** (gri) rozeti.
+- **Son giriş nereden?** Kişi içerideyse kendi dokümanındaki `girisZamani`; değilse son 300 hareket içindeki en yeni "giris" kaydı. Bulunamazsa "—".
+
+### `ekranlar/yonetim/bolumler_ekrani.dart` (Gün 5)
+- Kendi başlığı (AppBar) kaldırıldı; başlık artık Yönetim ekranında.
+- Her kartta **"2 kişi içeride · Son okutma: 09:12"**.
+  - **Kişi sayısı**: Tüm kullanıcılar okunur, `suAnkiBolumId` değerine göre bir **Map**'te (bölümId → sayı) sayılır.
+  - **Son okutma**: Son hareketler en yeniden eskiye sıralı geldiği için bir bölümle ilk karşılaşılan kayıt en sonuncusudur (`putIfAbsent` = yoksa ekle, varsa dokunma). Otomatik çıkışlar sayılmaz, çünkü QR okutularak oluşmazlar.
+- Üç akış iç içe (`StreamBuilder` içinde `StreamBuilder`): bölümler + kullanıcılar + hareketler. Kullanıcılar/hareketler henüz gelmese bile bölümler gösterilir.
+- **Pasif yapma** ileriye bırakıldı (karar: Gün 5'te yapılmadı).
+
+### `servisler/veri_servisi.dart` (Gün 5)
+- **`tumKullanicilarAkisi()`**: Tüm kullanıcılar, ada göre sıralı.
+- **`sonHareketlerAkisi()`**: Herkesin en yeni 300 hareketi. **`limit()`** = en fazla bu kadar doküman getir; hepsini okumak yavaş ve pahalı olurdu. Tek alana (`zaman`) göre sıralandığı için yeni indeks gerekmedi.
+
+### `yardimcilar/zaman_bicimi.dart` (Gün 5)
+- **`kisaZamanYaz()`**: Bugünse "09:12", değilse "19 Kas 09:12".
+
+### `modeller/kullanici.dart` (Gün 5)
+- **`turkceKucukHarf()`**: Aramada "İsmail" ile "ismail" eşleşsin diye; Dart'ın `toLowerCase()` fonksiyonu "I" harfini "ı" değil "i" yapar.
+
+### `firestore.rules` (Gün 5)
+- `kullanicilar` ve `hareketler` okuma kuralına **`|| yoneticiMi()`** eklendi: yönetici herkesinkini okur, personel hâlâ sadece kendisininkini. `firebase deploy --only firestore` ile yayınlandı.
+
+### Küçük temizlik
+- `flutter analyze` eski dosyalarda 7 bilgi notu veriyordu ("if içindeki satır süslü parantezde olmalı"). `dart fix --apply` ile düzeltildi; davranış değişmedi.
+
+**Ekran görüntüsü:** `ekran-goruntuleri/gun5-personeller.png`

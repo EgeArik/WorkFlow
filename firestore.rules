@@ -2,7 +2,7 @@ rules_version = '2';
 
 // Firestore güvenlik kuralları: veritabanına kimin, neyi okuyup yazabileceğini belirler.
 // Burada izin verilmeyen her şey otomatik olarak YASAKTIR.
-// NOT: Gün 3 sürümü. Yöneticinin tüm kullanıcı/hareketleri okuması Gün 6'da eklenecek.
+// Gün 5: yönetici tüm kullanıcıları ve hareketleri okuyabilir.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -23,8 +23,8 @@ service cloud.firestore {
     }
 
     match /kullanicilar/{uid} {
-      // Kullanıcı yalnızca kendi dokümanını okuyabilir.
-      allow read: if girisYapti() && request.auth.uid == uid;
+      // Kullanıcı yalnızca kendi dokümanını okuyabilir; yönetici herkesinkini okur.
+      allow read: if (girisYapti() && request.auth.uid == uid) || yoneticiMi();
 
       // Kayıtta: yalnızca kendi uid'siyle, yalnızca "personel" rolüyle,
       // yalnızca beklenen alanlarla ve boş bölüm bilgisiyle doküman oluşturabilir.
@@ -82,8 +82,8 @@ service cloud.firestore {
     }
 
     match /hareketler/{hareketId} {
-      // Personel yalnızca KENDİ hareketlerini okuyabilir.
-      allow read: if girisYapti() && resource.data.kullaniciId == request.auth.uid;
+      // Personel yalnızca KENDİ hareketlerini okuyabilir; yönetici hepsini okur.
+      allow read: if (girisYapti() && resource.data.kullaniciId == request.auth.uid) || yoneticiMi();
 
       // Personel yalnızca KENDİ adına, geçerli türde ve SUNUCU saatiyle kayıt ekleyebilir.
       // request.time: isteğin sunucuya ulaştığı an. serverTimestamp() ile yazılan zaman buna eşittir.

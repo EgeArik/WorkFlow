@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../modeller/bolum.dart';
+import '../../modeller/hareket.dart';
+import '../../modeller/kullanici.dart';
 import '../../servisler/bolum_servisi.dart';
+import '../../servisler/veri_servisi.dart';
 import '../../tema.dart';
 import '../../widgetlar/rozet.dart';
+import '../../yardimcilar/zaman_bicimi.dart';
 import 'bolum_qr_ekrani.dart';
 
-// Yönetim > Bölümler (basit sürüm). Gün 5'te kişi sayısı, son okutma, pasif yapma
-// ve PDF eklenecek; Yönetim sekmesi de 4 alt sekmeli hâle gelecek.
+// Yönetim > Bölümler alt sekmesi: her bölümde içerideki kişi sayısı, son okutma saati,
+// QR Kodu butonu ve "Bölüm Ekle". Bölümler silinmez (pasif yapma ileride eklenecek).
 class BolumlerEkrani extends StatefulWidget {
   const BolumlerEkrani({super.key});
 
@@ -17,7 +21,12 @@ class BolumlerEkrani extends StatefulWidget {
 
 class _BolumlerEkraniState extends State<BolumlerEkrani> {
   final _servis = BolumServisi();
-  late final Stream<List<Bolum>> _akis = _servis.bolumlerAkisi();
+  // Akışlar bir kez oluşturulur (build her çalıştığında yeni dinleme açılmasın diye).
+  late final Stream<List<Bolum>> _bolumAkisi = _servis.bolumlerAkisi();
+  late final Stream<List<Kullanici>> _kullaniciAkisi = VeriServisi()
+      .tumKullanicilarAkisi();
+  late final Stream<List<Hareket>> _hareketAkisi = VeriServisi()
+      .sonHareketlerAkisi();
 
   void _qrAc(Bolum bolum) {
     Navigator.of(
@@ -51,26 +60,23 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
 
   @override
   Widget build(BuildContext context) {
+    // Başlık (AppBar) artık Yönetim ekranında; burada içerik ve "Bölüm Ekle" var.
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yönetim · Bölümler'),
-        backgroundColor: Renkler.lacivert,
-        foregroundColor: Colors.white,
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _bolumEkle,
         icon: const Icon(Icons.add),
         label: const Text('Bölüm Ekle'),
       ),
       body: StreamBuilder<List<Bolum>>(
-        stream: _akis,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
+        stream: _bolumAkisi,
+        builder: (context, bolumSnap) {
+          if (bolumSnap.hasError) {
             return const Center(child: Text('Bölümler yüklenemedi.'));
           }
-          if (!snapshot.hasData)
+          if (!bolumSnap.hasData) {
             return const Center(child: CircularProgressIndicator());
-          final bolumler = snapshot.data!;
+          }
+          final bolumler = bolumSnap.data!;
           if (bolumler.isEmpty) {
             return const Center(
               child: Text(
@@ -79,46 +85,107 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
               ),
             );
           }
-          // ListView.separated: elemanların arasına boşluk koyarak liste çizer.
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              96,
-            ), // altta buton için boşluk
-            itemCount: bolumler.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (context, i) {
-              final b = bolumler[i];
-              return Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-                decoration: kartDekorasyonu(),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        b.ad,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    if (!b.aktif)
-                      const Rozet(yazi: 'Pasif', renk: Renkler.hata),
-                    TextButton.icon(
-                      onPressed: () => _qrAc(b),
-                      icon: const Icon(Icons.qr_code),
-                      label: const Text('QR Kodu'),
-                    ),
-                  ],
+          // Kişi sayısı ve son okutma için kullanıcıları ve son hareketleri de dinleriz.
+          // Bunlar henüz gelmediyse (veya hata varsa) bölümler yine de gösterilir.
+          return StreamBuilder<List<Kullanici>>(
+            stream: _kullaniciAkisi,
+            builder: (context, kullaniciSnap) {
+              return StreamBuilder<List<Hareket>>(
+                stream: _hareketAkisi,
+                builder: (context, hareketSnap) => _liste(
+                  bolumler,
+                  kullaniciSnap.data ?? const [],
+                  hareketSnap.data ?? const [],
                 ),
               );
             },
           );
         },
       ),
+    );
+  }
+
+  Widget _liste(
+    List<Bolum> bolumler,
+    List<Kullanici> kullanicilar,
+    List<Hareket> hareketler,
+  ) {
+    // Her bölümde kaç kişi var? Map: bölümId -> kişi sayısı.
+    final kisiSayisi = <String, int>{};
+    for (final k in kullanicilar) {
+      final id = k.suAnkiBolumId;
+      if (id != null) kisiSayisi[id] = (kisiSayisi[id] ?? 0) + 1;
+    }
+    // Her bölümün son okutması. Liste en yeniden eskiye sıralı olduğu için bir bölümle
+    // ilk karşılaştığımız kayıt, o bölümün en son kaydıdır (putIfAbsent: yoksa ekle).
+    // Otomatik çıkış sayılmaz: o kayıt QR okutularak değil, başka bölüme geçince oluşur.
+    final sonOkutma = <String, DateTime>{};
+    for (final h in hareketler) {
+      final zaman = h.zaman;
+      if (h.tur == 'otomatik_cikis' || zaman == null) continue;
+      sonOkutma.putIfAbsent(h.bolumId, () => zaman);
+    }
+
+    // ListView.separated: elemanların arasına boşluk koyarak liste çizer.
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        96,
+      ), // altta buton için boşluk
+      itemCount: bolumler.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
+      itemBuilder: (context, i) {
+        final b = bolumler[i];
+        final son = sonOkutma[b.id];
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+          decoration: kartDekorasyonu(),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            b.ad,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (!b.aktif) ...[
+                          const SizedBox(width: 8),
+                          const Rozet(yazi: 'Pasif', renk: Renkler.hata),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${kisiSayisi[b.id] ?? 0} kişi içeride · Son okutma: '
+                      '${son == null ? '—' : kisaZamanYaz(son)}',
+                      style: const TextStyle(
+                        color: Renkler.griYazi,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => _qrAc(b),
+                icon: const Icon(Icons.qr_code),
+                label: const Text('QR Kodu'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
