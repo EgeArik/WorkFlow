@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'ekranlar/ana_iskelet.dart';
 import 'ekranlar/giris_ekrani.dart';
@@ -32,6 +33,10 @@ class WorkFlowApp extends StatelessWidget {
       title: 'WorkFlow',
       debugShowCheckedModeBanner: false, // sağ üstteki "DEBUG" şeridini gizler
       theme: uygulamaTemasi(),
+      // Uygulama dili Türkçe: tarih seçici, "İptal/Tamam" gibi hazır yazılar Türkçe görünür.
+      locale: const Locale('tr'),
+      supportedLocales: const [Locale('tr')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: const OturumKapisi(),
     );
   }

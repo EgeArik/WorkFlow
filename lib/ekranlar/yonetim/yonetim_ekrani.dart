@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../tema.dart';
 import 'bolumler_ekrani.dart';
+import 'genel_ekrani.dart';
+import 'hareketler_ekrani.dart';
 import 'personeller_ekrani.dart';
 
 // Yönetim sekmesi: 4 alt sekme (Genel, Personeller, Bölümler, Hareketler).
@@ -14,7 +16,6 @@ class YonetimEkrani extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
-      initialIndex: 1, // Gün 5'te hazır olan ilk sekme: Personeller
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Yönetim'),
@@ -38,27 +39,12 @@ class YonetimEkrani extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            _Yakinda(),
+            GenelEkrani(),
             PersonellerEkrani(),
             BolumlerEkrani(),
-            _Yakinda(),
+            HareketlerEkrani(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// Henüz yapılmamış alt sekmeler için geçici yazı.
-class _Yakinda extends StatelessWidget {
-  const _Yakinda();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Gün 6'da eklenecek",
-        style: TextStyle(color: Renkler.griYazi, fontSize: 16),
       ),
     );
   }

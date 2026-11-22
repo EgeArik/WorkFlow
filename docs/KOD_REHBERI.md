@@ -307,3 +307,43 @@ QR okutuldu: "workflow:bolum:abc123"
 - `flutter analyze` eski dosyalarda 7 bilgi notu veriyordu ("if içindeki satır süslü parantezde olmalı"). `dart fix --apply` ile düzeltildi; davranış değişmedi.
 
 **Ekran görüntüsü:** `ekran-goruntuleri/gun5-personeller.png`
+
+---
+
+## Gün 6 dosyaları – Yönetim: Genel ve Hareketler
+
+### `ekranlar/yonetim/genel_ekrani.dart` (yeni)
+- **`_SayiKarti`**: "Toplam personel" ve "Şu an içeride" (bir bölümde görünen kişi sayısı) kartları.
+- **Bölüm Durumu**: Her aktif bölüm için ad, "1 kişi" ve yatay çubuk (**`LinearProgressIndicator`**: 0 ile 1 arasındaki değeri çubuk olarak çizer).
+  - **Çubuğun doluluğu = o bölümdeki kişi ÷ şu an içerideki toplam kişi.** Örnek: 4 kişi içeride, 3'ü Emerald'da → Emerald çubuğu %75. Yani içeridekilerin bölümlere dağılımını gösterir.
+  - Pasif bölüm, sadece içinde hâlâ biri varsa gösterilir.
+  - `(Bolum, int)` bir **record**'dur: iki değeri yeni sınıf yazmadan tek pakette taşır.
+- **Son Hareketler**: Herkesin son 10 kaydı (saat, kişi, bölüm, tür rozeti). `sonHareketlerAkisi(adet: 10)` ile.
+- **`_SistemDurumu`**: Yeşil nokta + "Sistem aktif · 22 Kasım Pazar 16:27". `Timer.periodic` her 30 saniyede ekranı yeniler; `dispose()` içinde durdurulur.
+
+### `ekranlar/yonetim/hareketler_ekrani.dart` (yeni)
+- **Personel seçici**: **`DropdownButtonFormField`** (açılır liste). İlk açılışta listedeki ilk kişi seçilir.
+- **Filtre**: Bugün / Dün / Bu hafta / Tarih seç (`SegmentedButton`). Tarih seç → **`showDatePicker`** takvimi açar; seçilen gün düğmede yazar ("19.11"), vazgeçilirse filtre değişmez.
+- **`_donem()`**: Seçime göre dönemin başını ve sonunu bir record olarak döndürür: Dün = (dün 00:00, bugün 00:00).
+- **`_akisAl()`**: Kişi veya dönem değişince yeni akış açar, değişmediyse eskisini kullanır (her `build`'de Firestore'a yeni dinleme açılmasın diye).
+- Üstte **toplam çalışma süresi** kartı ve kayıt sayısı, altında Gün 4'teki zaman çizelgesi.
+
+### `yardimcilar/calisma_suresi.dart` (yeni)
+- **`toplamCalismaSuresi()`**: Kayıtları eskiden yeniye sıralar; her **giriş** ile ondan sonraki **çıkış** arasındaki süreleri toplar.
+- Bölüm değiştirmek süreyi bölmez: eski bölümden otomatik çıkış ve yeni bölüme giriş **aynı anda** yazılır. Aynı andaki kayıtlarda önce çıkış, sonra giriş işlensin diye sıralamaya ek kural konuldu.
+- Kişi hâlâ içerideyse süre şu ana (geçmiş bir gün seçildiyse o günün sonuna) kadar sayılır.
+- **Girişi listede olmayan çıkış sayılmaz.** İlk sürümde dönemin başından (00:00) sayılıyordu; konsoldan elle yazılmış test girişi yüzünden 17 saatlik hatalı süre çıktı. Bedeli: gece yarısını geçen mesaide (23:00 giriş, 01:00 çıkış) "Bugün" filtresinde 00:00–01:00 arası sayılmaz.
+
+### `servisler/veri_servisi.dart` (Gün 6)
+- `hareketlerAkisi()` fonksiyonuna isteğe bağlı **`bitis`** eklendi: verilirse o andan önceki kayıtlar gelir. Aynı alana (`zaman`) iki sınır koyduğumuz için Gün 2'deki indeks yeterli.
+
+### `main.dart` ve `pubspec.yaml` (Gün 6)
+- **`flutter_localizations`** (Flutter'la birlikte gelir) eklendi, uygulama dili `Locale('tr')` yapıldı. Böylece takvim ve "İptal/Tamam" gibi hazır yazılar Türkçe.
+
+### Güvenlik kuralları
+- Yeni kural gerekmedi: Gün 5'te yöneticiye tüm kullanıcıları ve hareketleri okuma izni verilmişti.
+
+### Gün 7'ye kalanlar
+- Yöneticinin otomatik çıkış saatini düzeltmesi, bölümü pasif yapma.
+
+**Ekran görüntüleri:** `ekran-goruntuleri/gun6-genel.png`, `ekran-goruntuleri/gun6-hareketler.png`
