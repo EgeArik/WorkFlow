@@ -255,5 +255,11 @@ QR okutuldu: "workflow:bolum:abc123"
 ### `ekranlar/profil_ekrani.dart` (Gün 4)
 - Çerçeveli (`OutlinedButton`) **Şifre Değiştir** butonu eklendi; ikincil işlem olduğu için Çıkış Yap'tan farklı görünür.
 
-### Bilinen sınırlama (düzeltilecek)
-Unutulan çıkış, uygulama **açıldığı anın** tarihiyle kaydediliyor (ör. Perşembe giriş → Pazar otomatik çıkış). Sebep: güvenlik kuralı hareket zamanının sunucu saati olmasını istiyor. Bir sonraki adımda otomatik çıkış "girişten 8 saat sonra" olarak yazılacak.
+### Düzeltme: Unutulan çıkışın zamanı
+**Sorun:** Unutulan çıkış, uygulamanın **açıldığı anın** tarihiyle kaydediliyordu (Perşembe giriş → Pazar otomatik çıkış). Sebep: güvenlik kuralı her hareketin zamanının sunucu saati olmasını istiyordu.
+
+**Çözüm:**
+- `hareket_servisi.dart` → `eskiAcikKaydiKapat()`: Otomatik çıkış zamanı artık **giriş + 8 saat** (`tahminiMesai`); giriş gününün 23:59'unu geçerse 23:59. Bu zaman `Timestamp.fromDate()` ile yazılır. Gerçek çıkış saati bilinemediği için bu bir **tahmindir**; Gün 6'da yönetici düzeltebilecek.
+- `firestore.rules` → **`gecmisOtomatikCikis()`**: Geçmiş bir zamana yazmaya izin veren **tek istisna**. Şartları: tür `otomatik_cikis`, bölüm kişinin şu anki bölümü, zaman **giriş ile giriş + 8 saat arasında** (`duration.value(8, 'h')`) ve şu andan önce. `get()` aynı batch'te kullanıcı dokümanı temizlenmeden **önceki** hâli okur. Diğer tüm kayıtlar hâlâ yalnızca sunucu saatiyle yazılabilir; böylece kimse rastgele bir tarihe kayıt ekleyemez.
+
+**Test:** Konsoldan kullanıcıya geçmiş bir giriş verildi (19 Kasım 09:00, Yemekhane) → uygulama yeniden açıldı → Geçmiş'te **19 Kasım 17:00 · Yemekhane · Otomatik çıkış** göründü (ekran görüntüsü: `gun4-gecmis-bu-hafta.png`).

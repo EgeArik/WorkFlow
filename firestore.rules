@@ -64,6 +64,23 @@ service cloud.firestore {
         && request.resource.data.aktif is bool;
     }
 
+    // Unutulan çıkışın geçmiş bir zamana yazılmasına izin veren TEK istisna:
+    // - tür "otomatik_cikis" olmalı,
+    // - bölüm, kişinin şu an içinde göründüğü bölüm olmalı,
+    // - zaman, kişinin giriş zamanı ile giriş + 8 saat arasında ve şu andan önce olmalı.
+    // get() yazmadan ÖNCEKİ kullanıcı dokümanını okur (aynı batch'te temizlenmeden önceki hâli).
+    function gecmisOtomatikCikis() {
+      let k = get(/databases/$(database)/documents/kullanicilar/$(request.auth.uid)).data;
+      let z = request.resource.data.zaman;
+      return request.resource.data.tur == 'otomatik_cikis'
+        && z is timestamp
+        && k.girisZamani is timestamp
+        && request.resource.data.bolumId == k.suAnkiBolumId
+        && z >= k.girisZamani
+        && z <= k.girisZamani + duration.value(8, 'h')
+        && z < request.time;
+    }
+
     match /hareketler/{hareketId} {
       // Personel yalnızca KENDİ hareketlerini okuyabilir.
       allow read: if girisYapti() && resource.data.kullaniciId == request.auth.uid;
@@ -77,7 +94,7 @@ service cloud.firestore {
              ['kullaniciId', 'kullaniciAdi', 'bolumId', 'bolumAdi', 'tur', 'zaman'])
         && request.resource.data.kullaniciId == request.auth.uid
         && request.resource.data.tur in ['giris', 'cikis', 'otomatik_cikis']
-        && request.resource.data.zaman == request.time
+        && (request.resource.data.zaman == request.time || gecmisOtomatikCikis())
         && request.resource.data.bolumId is string
         && request.resource.data.bolumAdi is string
         && (request.resource.data.tur != 'giris' || aktifBolum(request.resource.data.bolumId));

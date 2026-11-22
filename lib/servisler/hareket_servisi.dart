@@ -167,7 +167,10 @@ class HareketServisi {
 
   // ÇIKIŞI UNUTMA: önceki günden açık kayıt kaldıysa sessizce otomatik çıkış yapar.
   // Kapatılan bölümün adını döndürür; kapatılacak bir şey yoksa null.
-  // Not: Kayıt zamanı "şimdi" olur; gerçek çıkış saatini Gün 6'da yönetici düzeltebilecek.
+  // Kayıt zamanı TAHMİNİDİR: girişten 8 saat sonra (bir mesai günü), ama giriş gününün
+  // 23:59'unu geçmez. Gerçek çıkış saatini Gün 6'da yönetici düzeltebilecek.
+  static const tahminiMesai = Duration(hours: 8);
+
   Future<String?> eskiAcikKaydiKapat(Kullanici kullanici) async {
     final giris = kullanici.girisZamani;
     final suAnkiId = kullanici.suAnkiBolumId;
@@ -175,8 +178,14 @@ class HareketServisi {
 
     final simdi = DateTime.now();
     final bugunBaslangic = DateTime(simdi.year, simdi.month, simdi.day);
-    if (!giris.isBefore(bugunBaslangic))
+    if (!giris.isBefore(bugunBaslangic)) {
       return null; // giriş bugün yapılmış, sorun yok
+    }
+
+    // Tahmini çıkış: giriş + 8 saat; giriş günü 23:59'u geçerse 23:59.
+    final gunSonu = DateTime(giris.year, giris.month, giris.day, 23, 59);
+    var tahminiCikis = giris.add(tahminiMesai);
+    if (tahminiCikis.isAfter(gunSonu)) tahminiCikis = gunSonu;
 
     final bolumAdi = kullanici.suAnkiBolumAdi ?? '';
     // Batch: transaction gibi "ya hepsi ya hiçbiri", ama önce okuma yapmaz; sadece yazar.
@@ -187,7 +196,9 @@ class HareketServisi {
       'bolumId': suAnkiId,
       'bolumAdi': bolumAdi,
       'tur': 'otomatik_cikis',
-      'zaman': FieldValue.serverTimestamp(),
+      // Sunucu saati değil, hesapladığımız geçmiş zaman. Güvenlik kuralı buna yalnızca
+      // otomatik çıkışta ve "giriş ile giriş+8 saat arası" olduğunda izin verir.
+      'zaman': Timestamp.fromDate(tahminiCikis),
     });
     batch.update(_db.collection('kullanicilar').doc(kullanici.uid), {
       'suAnkiBolumId': null,
