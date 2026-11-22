@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../servisler/hareket_servisi.dart';
 import '../tema.dart';
@@ -22,18 +23,48 @@ class QrTaraEkrani extends StatefulWidget {
   State<QrTaraEkrani> createState() => _QrTaraEkraniState();
 }
 
-class _QrTaraEkraniState extends State<QrTaraEkrani> {
+// WidgetsBindingObserver: uygulama arka plana gidip geri gelince haber alırız (Gün 7).
+class _QrTaraEkraniState extends State<QrTaraEkrani>
+    with WidgetsBindingObserver {
   // Kamerayı yöneten nesne. Sadece QR formatını arar (daha hızlı).
   final _kamera = MobileScannerController(
     formats: const [BarcodeFormat.qrCode],
   );
   final _hareketServisi = HareketServisi();
   bool _isleniyor = false; // bir okutma işlenirken yeni okutmaları yok say
+  // "Ayarlara git"e basıldı mı? Sadece bu durumda geri dönünce kamerayı yeniden açarız.
+  bool _ayarlaraGidildi = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Uygulama arka plana gidip geri gelince haber ver.
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _kamera.dispose(); // sekmeden çıkınca kamerayı kapat
     super.dispose();
+  }
+
+  Future<void> _ayarlaraGit() async {
+    _ayarlaraGidildi = true;
+    await openAppSettings(); // telefonun bu uygulamaya ait ayar sayfasını açar
+  }
+
+  // Kişi ayarlardan uygulamaya dönünce (resumed) çalışır.
+  // DİKKAT: Android'in izin penceresi açılıp kapanınca da "resumed" gelir. Her seferinde
+  // kamerayı başlatsaydık kamera yine izin isterdi ve sonsuz döngü olurdu (ilk denemede oldu).
+  // Bu yüzden sadece "Ayarlara git"ten dönüldüyse VE izin gerçekten verildiyse başlatırız.
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState durum) async {
+    if (durum != AppLifecycleState.resumed || !_ayarlaraGidildi) return;
+    _ayarlaraGidildi = false;
+    if (await Permission.camera.isGranted) {
+      await _kamera.start().catchError((_) {});
+    }
   }
 
   // Kamera bir QR gördüğünde çağrılır (saniyede birkaç kez çağrılabilir).
@@ -83,9 +114,17 @@ class _QrTaraEkraniState extends State<QrTaraEkrani> {
           MobileScanner(
             controller: _kamera,
             onDetect: _qrBulundu,
-            errorBuilder: (context, hata) => _KameraHatasi(hata: hata),
+            errorBuilder: (context, hata) =>
+                _KameraHatasi(hata: hata, ayarlaraGit: _ayarlaraGit),
           ),
-          const _TaramaCercevesi(),
+          // Kamera hata verdiyse (ör. izin yok) çerçeveyi çizme; hata yazısının üstüne binmesin.
+          // _kamera bir ValueNotifier'dır: durumu (hata var mı?) değişince burası yeniden çizilir.
+          ValueListenableBuilder<MobileScannerState>(
+            valueListenable: _kamera,
+            builder: (context, durum, _) => durum.error == null
+                ? const _TaramaCercevesi()
+                : const SizedBox.shrink(),
+          ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -174,7 +213,8 @@ class _TaramaCercevesi extends StatelessWidget {
 // Kamera açılamazsa (ör. izin reddedildi) gösterilen ekran.
 class _KameraHatasi extends StatelessWidget {
   final MobileScannerException hata;
-  const _KameraHatasi({required this.hata});
+  final VoidCallback ayarlaraGit;
+  const _KameraHatasi({required this.hata, required this.ayarlaraGit});
 
   @override
   Widget build(BuildContext context) {
@@ -194,11 +234,19 @@ class _KameraHatasi extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             izinYok
-                ? 'Kamera izni verilmedi.\nQR okutmak için telefon ayarlarından WorkFlow uygulamasına kamera izni verin.'
+                ? 'Kamera izni verilmedi.\nQR okutmak için aşağıdaki butona basın ve İzinler > Kamera bölümünden izin verin.'
                 : 'Kamera açılamadı. Uygulamayı kapatıp tekrar deneyin.',
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
+          if (izinYok) ...[
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: ayarlaraGit,
+              icon: const Icon(Icons.settings),
+              label: const Text('Ayarlara git'),
+            ),
+          ],
         ],
       ),
     );

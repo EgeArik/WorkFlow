@@ -347,3 +347,40 @@ QR okutuldu: "workflow:bolum:abc123"
 - Yöneticinin otomatik çıkış saatini düzeltmesi, bölümü pasif yapma.
 
 **Ekran görüntüleri:** `ekran-goruntuleri/gun6-genel.png`, `ekran-goruntuleri/gun6-hareketler.png`
+
+---
+
+## Gün 7 dosyaları – Pasif bölüm, internet şeridi, kamera izni ve testler
+
+### `servisler/bolum_servisi.dart` (Gün 7)
+- **`aktiflikDegistir(bolum, aktif)`**: Bölümün `aktif` alanını değiştirir. **`update()`** sadece verilen alanı değiştirir, diğerlerine dokunmaz. Bölümler silinmez; pasif bölümün QR'ı ve eski kayıtları bozulmaz.
+
+### `ekranlar/yonetim/bolumler_ekrani.dart` (Gün 7)
+- Her kartta **`PopupMenuButton`** ("⋮" simgesi): basınca küçük menü açılır → **Pasif yap** / **Aktif yap**.
+- Pasif yapmadan önce **onay penceresi** (`AlertDialog`): "Bu bölüme artık giriş yapılamaz. İçerideki kişiler çıkış yapabilir." Vazgeçilir veya pencere dışına basılırsa hiçbir şey değişmez.
+
+### `servisler/hareket_servisi.dart` (Gün 7)
+- Pasif bölüm kontrolü değişti: Önceden pasif bölümde **her** okutma reddediliyordu, içerideki kişi çıkamıyordu. Artık kural: **pasif bölüme girilemez ama içindeki kişi çıkabilir.** Mesaj: "Bu bölüm (Emerald) şu an pasif. Giriş yapamazsınız." Güvenlik kuralları zaten sadece **girişte** bölümün aktif olmasını istiyordu; kural değişmedi.
+
+### `widgetlar/internet_seridi.dart` (yeni)
+- **`connectivity_plus`** paketiyle bağlantıyı **sürekli dinler** (`onConnectivityChanged` akışı). Hiçbir ağa bağlı değilse kırmızı "İnternet bağlantısı yok" şeridi; bağlantı varken `SizedBox.shrink()` ile hiç yer kaplamaz.
+- Açılıştaki durum için ayrıca **`checkConnectivity()`** sorulur (akış ilk değişikliğe kadar değer göndermeyebilir). `FutureBuilder` içinde `StreamBuilder` bunu birleştirir.
+- **Neden sekme geçişinde kontrol değil de sürekli dinleme?** Aynı sekmede dururken kesilen bağlantıyı da hemen gösterir.
+- Not: Bu paket telefonun bir ağa bağlı olup olmadığını bilir; Wi-Fi'ye bağlı ama modemin interneti yoksa şerit çıkmaz. O durumda QR okutma yine "internet yok" hatası verir.
+
+### `ekranlar/ana_iskelet.dart` (Gün 7)
+- `bottomNavigationBar` artık bir `Column`: üstte `InternetSeridi`, altta alt menü. Şerit **alt menünün hemen üstünde** durur; üste koysaydık her ekranın lacivert başlığıyla çakışırdı.
+
+### `ekranlar/qr_tara_ekrani.dart` (Gün 7)
+- İzin reddedilince **"Ayarlara git"** butonu: **`permission_handler`** paketinin `openAppSettings()` fonksiyonu telefonun bu uygulamaya ait ayar sayfasını açar.
+- **`WidgetsBindingObserver`** + **`didChangeAppLifecycleState`**: Uygulama arka plana gidip geri gelince haber alırız. Ayarlardan dönülünce (`resumed`) izin verildiyse (`Permission.camera.isGranted`) kamera yeniden başlatılır.
+- **Testte bulunan hata – sonsuz döngü:** İlk sürüm her "geri dönüşte" kamerayı başlatıyordu. Ama Android'in izin penceresi kapanınca da "geri dönüş" sinyali gelir → kamera tekrar izin ister → pencere → geri dönüş → ... Çözüm: **`_ayarlaraGidildi`** bayrağı; sadece "Ayarlara git"e basıldıysa yeniden başlatılır.
+- Kamera hata verdiyse tarama çerçevesi çizilmez (`ValueListenableBuilder` ile kameranın `error` durumu dinlenir); önceden çerçeve hata yazısının üstüne biniyordu.
+
+### `pubspec.yaml` (Gün 7)
+- `connectivity_plus` ve `permission_handler` eklendi. `permission_handler`'ın en yeni sürümü (13) projenin Android ayarlarıyla derlenmedi (Kotlin derleme hatası); **12.0.1** sürümüne sabitlendi.
+
+### `docs/TEST_SENARYOLARI.md` (yeni)
+- 7 test senaryosu: nasıl denendi, beklenen sonuç, sonuç. Testlerde bulunan ve düzeltilen hatalar tablosu. Rapora girecek.
+
+**Ekran görüntüsü:** `ekran-goruntuleri/gun7-kamera-izni.png`

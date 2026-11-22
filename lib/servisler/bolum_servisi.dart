@@ -21,4 +21,11 @@ class BolumServisi {
     final ref = await _bolumler.add({'ad': temizAd, 'aktif': true});
     return Bolum(id: ref.id, ad: temizAd, aktif: true);
   }
+
+  // Bölümü pasif yapar veya tekrar aktif yapar (Gün 7). Bölümler silinmez;
+  // pasif bölüme giriş yapılamaz ama eski kayıtlar ve QR kodu bozulmaz.
+  // update(): sadece verilen alanı değiştirir, diğer alanlara dokunmaz.
+  Future<void> aktiflikDegistir(Bolum bolum, bool aktif) {
+    return _bolumler.doc(bolum.id).update({'aktif': aktif});
+  }
 }

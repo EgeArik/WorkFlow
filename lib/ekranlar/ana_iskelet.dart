@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../modeller/kullanici.dart';
 import '../servisler/hareket_servisi.dart';
 import '../tema.dart';
+import '../widgetlar/internet_seridi.dart';
 import 'ana_sayfa.dart';
 import 'gecmis_ekrani.dart';
 import 'profil_ekrani.dart';
@@ -108,17 +109,25 @@ class _AnaIskeletState extends State<AnaIskelet> {
 
     return Scaffold(
       body: sekmeler[sira].ekran,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: sira,
-        onDestinationSelected: (yeniSira) =>
-            setState(() => _seciliSira = yeniSira),
-        destinations: [
-          for (final s in sekmeler)
-            NavigationDestination(
-              icon: Icon(s.ikon),
-              selectedIcon: Icon(s.seciliIkon),
-              label: s.ad,
-            ),
+      // Alt kısım: internet yoksa kırmızı şerit, onun altında alt menü.
+      // mainAxisSize.min: Column sadece içindekiler kadar yer kaplar.
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const InternetSeridi(),
+          NavigationBar(
+            selectedIndex: sira,
+            onDestinationSelected: (yeniSira) =>
+                setState(() => _seciliSira = yeniSira),
+            destinations: [
+              for (final s in sekmeler)
+                NavigationDestination(
+                  icon: Icon(s.ikon),
+                  selectedIcon: Icon(s.seciliIkon),
+                  label: s.ad,
+                ),
+            ],
+          ),
         ],
       ),
     );

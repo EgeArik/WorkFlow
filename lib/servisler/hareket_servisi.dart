@@ -78,12 +78,15 @@ class HareketServisi {
           throw OkutmaHatasi('Geçersiz QR. Böyle bir bölüm yok.');
         }
         final bolum = Bolum.firestoredan(bolumDok);
-        if (!bolum.aktif) {
-          throw OkutmaHatasi('${bolum.ad} pasif durumda. Okutma yapılamaz.');
-        }
-
         final kullanici = Kullanici.firestoredan(kullaniciDok);
         final suAnkiId = kullanici.suAnkiBolumId;
+
+        // Pasif bölüme GİRİLEMEZ; ama kişi zaten içindeyse ÇIKABİLİR (Durum B'ye devam eder).
+        if (!bolum.aktif && suAnkiId != bolum.id) {
+          throw OkutmaHatasi(
+            'Bu bölüm (${bolum.ad}) şu an pasif. Giriş yapamazsınız.',
+          );
+        }
 
         // Her hareket kaydında ortak olan alanlar. Zaman SUNUCUDAN alınır.
         Map<String, dynamic> hareketVerisi(

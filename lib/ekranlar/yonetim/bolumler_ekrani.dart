@@ -11,7 +11,7 @@ import '../../yardimcilar/zaman_bicimi.dart';
 import 'bolum_qr_ekrani.dart';
 
 // Yönetim > Bölümler alt sekmesi: her bölümde içerideki kişi sayısı, son okutma saati,
-// QR Kodu butonu ve "Bölüm Ekle". Bölümler silinmez (pasif yapma ileride eklenecek).
+// QR Kodu butonu, ⋮ menüsünde Pasif yap / Aktif yap ve "Bölüm Ekle". Bölümler silinmez.
 class BolumlerEkrani extends StatefulWidget {
   const BolumlerEkrani({super.key});
 
@@ -51,6 +51,50 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
         const SnackBar(
           content: Text(
             'Bölüm eklenemedi. İnternet bağlantınızı ve yetkinizi kontrol edin.',
+          ),
+          backgroundColor: Renkler.hata,
+        ),
+      );
+    }
+  }
+
+  // Pasif yap / Aktif yap. Pasif yapmadan önce onay istenir (yanlışlıkla basılmasın).
+  Future<void> _aktiflikDegistir(Bolum bolum) async {
+    final yeniDurum = !bolum.aktif;
+    if (!yeniDurum) {
+      final onay = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Bölümü pasif yap'),
+          content: Text(
+            '${bolum.ad} pasif yapılsın mı?\n\n'
+            'Bu bölüme artık giriş yapılamaz. İçerideki kişiler çıkış yapabilir. '
+            'Bölümü daha sonra tekrar aktif yapabilirsiniz.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Vazgeç'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Renkler.hata),
+              child: const Text('Pasif yap'),
+            ),
+          ],
+        ),
+      );
+      if (onay != true) return; // vazgeçildi veya pencere dışına basıldı
+    }
+
+    try {
+      await _servis.aktiflikDegistir(bolum, yeniDurum);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Değişiklik kaydedilemedi. İnternet bağlantınızı kontrol edin.',
           ),
           backgroundColor: Renkler.hata,
         ),
@@ -181,6 +225,17 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
                 onPressed: () => _qrAc(b),
                 icon: const Icon(Icons.qr_code),
                 label: const Text('QR Kodu'),
+              ),
+              // PopupMenuButton: "⋮" simgesi; basınca küçük bir seçenek menüsü açılır.
+              PopupMenuButton<String>(
+                tooltip: 'Diğer işlemler',
+                onSelected: (_) => _aktiflikDegistir(b),
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'aktiflik',
+                    child: Text(b.aktif ? 'Pasif yap' : 'Aktif yap'),
+                  ),
+                ],
               ),
             ],
           ),
