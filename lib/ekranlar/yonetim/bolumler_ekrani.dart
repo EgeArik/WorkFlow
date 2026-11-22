@@ -157,7 +157,8 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
     // Her bölümde kaç kişi var? Map: bölümId -> kişi sayısı.
     final kisiSayisi = <String, int>{};
     for (final k in kullanicilar) {
-      final id = k.suAnkiBolumId;
+      // 9 saati dolan kişi sayılmaz (telefonu kapalı olsa bile).
+      final id = k.suAnIcerideMi ? k.suAnkiBolumId : null;
       if (id != null) kisiSayisi[id] = (kisiSayisi[id] ?? 0) + 1;
     }
     // Her bölümün son okutması. Liste en yeniden eskiye sıralı olduğu için bir bölümle

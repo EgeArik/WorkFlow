@@ -1,5 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Girişten bu kadar süre sonra kişi otomatik olarak çıkmış sayılır ve çıkış kaydı
+// tam "giriş + 9 saat" olarak yazılır. Değiştirmek için sadece burayı değiştirin;
+// firestore.rules içindeki "9" da aynı olmalı.
+const otomatikCikisSuresi = Duration(hours: 9);
+
 // Model: Firestore'dan gelen ham veriyi (Map) düzenli bir Dart nesnesine çeviren sınıf.
 // Böylece ekranlarda veri['adSoyad'] yerine kullanici.adSoyad yazarız; yazım hatası yapınca
 // program daha çalışmadan uyarır.
@@ -47,7 +52,19 @@ class Kullanici {
 
   // Getter: hesaplanan özellik. Alan gibi okunur (kullanici.yoneticiMi) ama saklanmaz.
   bool get yoneticiMi => rol == 'yonetici';
+  // Dokümana göre içeride mi? (Giriş/çıkış KARARI bununla verilir.)
   bool get icerideMi => suAnkiBolumId != null;
+
+  // Girişin üzerinden otomatik çıkış süresi (9 saat) geçti mi?
+  bool get suresiDolduMu {
+    final giris = girisZamani;
+    return giris != null &&
+        DateTime.now().difference(giris) >= otomatikCikisSuresi;
+  }
+
+  // EKRANDA gösterilecek durum: içeride ve 9 saat dolmamış. Süresi dolan kişinin otomatik
+  // çıkış kaydını kendi telefonu yazar; telefonu kapalıysa bile yönetici onu "Dışarıda" görür.
+  bool get suAnIcerideMi => icerideMi && !suresiDolduMu;
 
   // "Ege Arık" -> "EA". Avatar dairesinde gösterilir.
   String get basHarfler {

@@ -54,7 +54,7 @@ Karar `suAnkiBolumId` değerine göre:
 - Tek Firestore transaction/batch.
 - Zaman `FieldValue.serverTimestamp()`.
 - Aynı bölüm ~10 sn içinde tekrar okutulursa yeni kayıt yok.
-- Önceki günden açık kayıt varsa uygulama açılışında fark edilir; yönetici kaydı düzeltebilir.
+- Çıkış unutulursa: girişin üzerinden 9 saat geçince kişi otomatik çıkmış sayılır; çıkış kaydı "giriş + 9 saat" zamanıyla, kişinin kendi uygulaması tarafından (açılışta, açıkken her dakika veya bir sonraki QR okutmasında) yazılır. Yönetici ekranları süresi dolan kişiyi hemen "Dışarıda" gösterir.
 
 ## 7. Veri yapısı (Firestore)
 - `kullanicilar/{uid}`: adSoyad, eposta, gorev, rol, suAnkiBolumId, suAnkiBolumAdi, girisZamani.

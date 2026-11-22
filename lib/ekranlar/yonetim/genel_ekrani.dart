@@ -43,7 +43,7 @@ class _GenelEkraniState extends State<GenelEkrani> {
               return const Center(child: CircularProgressIndicator());
             }
             final kullanicilar = kullaniciSnap.data!;
-            final iceride = kullanicilar.where((k) => k.icerideMi).length;
+            final iceride = kullanicilar.where((k) => k.suAnIcerideMi).length;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -118,7 +118,9 @@ class _GenelEkraniState extends State<GenelEkrani> {
   ) {
     final gosterilecek = <(Bolum, int)>[]; // (bölüm, kişi sayısı) çiftleri
     for (final b in bolumler) {
-      final sayi = kullanicilar.where((k) => k.suAnkiBolumId == b.id).length;
+      final sayi = kullanicilar
+          .where((k) => k.suAnIcerideMi && k.suAnkiBolumId == b.id)
+          .length;
       if (b.aktif || sayi > 0) gosterilecek.add((b, sayi));
     }
     if (gosterilecek.isEmpty) {

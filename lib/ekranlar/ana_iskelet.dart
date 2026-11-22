@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../modeller/kullanici.dart';
@@ -34,16 +36,34 @@ class _Sekme {
 
 class _AnaIskeletState extends State<AnaIskelet> {
   int _seciliSira = 0; // şu an açık olan sekmenin sırası (0 = ilk sekme)
+  Timer? _zamanlayici;
+  bool _kontrolSuruyor =
+      false; // aynı anda iki kontrol çalışıp iki kayıt yazmasın
 
   @override
   void initState() {
     super.initState();
-    _eskiKaydiKontrolEt();
+    _eskiKaydiKontrolEt(); // uygulama açılınca
+    // Uygulama açık dururken de her dakika bak: 9 saat dolunca hemen kapatılsın.
+    // Kontrol internete çıkmaz; sadece süre dolduysa tek bir kayıt yazar.
+    _zamanlayici = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _eskiKaydiKontrolEt(),
+    );
   }
 
-  // ÇIKIŞI UNUTMA: uygulama açılınca, önceki günden açık kalmış bir giriş varsa
-  // sessizce otomatik çıkış yapılır ve kullanıcıya kısa bir bilgi gösterilir.
+  @override
+  void dispose() {
+    _zamanlayici?.cancel();
+    super.dispose();
+  }
+
+  // ÇIKIŞI UNUTMA: girişin üzerinden 9 saat geçtiyse sessizce "giriş + 9 saat" zamanlı
+  // otomatik çıkış yazılır ve kullanıcıya kısa bir bilgi gösterilir.
+  // widget.kullanici her zaman en güncel bilgidir (üstteki akış her değişiklikte yeniler).
   Future<void> _eskiKaydiKontrolEt() async {
+    if (_kontrolSuruyor) return;
+    _kontrolSuruyor = true;
     try {
       final kapatilan = await HareketServisi().eskiAcikKaydiKapat(
         widget.kullanici,
@@ -52,13 +72,16 @@ class _AnaIskeletState extends State<AnaIskelet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Önceki günden açık kalan "$kapatilan" girişiniz otomatik kapatıldı.',
+            '"$kapatilan" girişinizin üzerinden 9 saat geçtiği için '
+            'otomatik çıkış yapıldı.',
           ),
           backgroundColor: Renkler.uyari,
         ),
       );
     } catch (_) {
-      // İnternet yoksa sorun değil; bir sonraki açılışta tekrar denenir.
+      // İnternet yoksa sorun değil; bir dakika sonra tekrar denenir.
+    } finally {
+      _kontrolSuruyor = false; // finally: hata olsa da olmasa da çalışır
     }
   }
 

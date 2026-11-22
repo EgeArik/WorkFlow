@@ -384,3 +384,31 @@ QR okutuldu: "workflow:bolum:abc123"
 - 7 test senaryosu: nasıl denendi, beklenen sonuç, sonuç. Testlerde bulunan ve düzeltilen hatalar tablosu. Rapora girecek.
 
 **Ekran görüntüsü:** `ekran-goruntuleri/gun7-kamera-izni.png`
+
+---
+
+## Ek düzeltme – 9 saat otomatik çıkış kuralı
+
+**Önceki durum:** Unutulan çıkış sadece **ertesi gün** uygulama açılınca kapatılıyor, saati "giriş + 8 saat (en geç 23:59)" yazılıyordu. Biri sabah girip çıkışı unutursa akşam hâlâ "İçeride" görünüyordu.
+
+**Yeni kural:** Girişin üzerinden **9 saat** geçince kişi otomatik çıkmış sayılır; çıkış kaydı her zaman tam **giriş + 9 saat** zamanıyla yazılır (23:59 sınırı kalktı, gece vardiyası da doğru hesaplanır).
+
+### `modeller/kullanici.dart`
+- **`otomatikCikisSuresi = Duration(hours: 9)`**: Süre tek yerde. Değiştirilirse `firestore.rules` içindeki `9` da değişmeli.
+- **`suresiDolduMu`**: Girişin üzerinden 9 saat geçti mi?
+- **`suAnIcerideMi`**: Ekranda gösterilecek durum = içeride **ve** süre dolmamış. `icerideMi` (dokümana göre) giriş/çıkış kararında, `suAnIcerideMi` ekranlarda kullanılır.
+
+### Kaydı kim, ne zaman yazıyor? (Sunucu olmadığı için kişinin kendi telefonu)
+- **Uygulama açılınca** ve **açıkken her dakika** (`ana_iskelet.dart` → `Timer.periodic`). Kontrol internete çıkmaz, sadece süreye bakar; süre dolduysa tek kayıt yazar. `_kontrolSuruyor` bayrağı iki kontrolün aynı anda iki kayıt yazmasını engeller; **`finally`** bloğu hata olsa da olmasa da bayrağı indirir.
+- **QR okutulunca** (`hareket_servisi.dart` → transaction içinde): Süre dolmuşsa önce eski giriş "giriş + 9 saat" ile kapatılır, sonra bu okutma **yeni giriş** sayılır. Yoksa ertesi sabah aynı QR okutulunca yanlışlıkla "çıkış" olurdu.
+  - **`...` (spread)**: Bir haritanın tüm alanlarını başka haritaya kopyalar; burada ortak alanları kopyalayıp sadece `zaman`ı geçmiş saatle değiştirdik.
+
+### Yönetici ekranları (Genel, Personeller, Bölümler) ve Ana Sayfa
+- `suAnIcerideMi` kullanılır: Süresi dolan kişi, **telefonu kapalı olsa bile** hemen "Dışarıda" görünür ve bölüm sayılarına katılmaz. Personeller'de "Otomatik çıkış (9 saat doldu)" yazar. Kayıt, kişi uygulamayı açınca yazılır.
+
+### `firestore.rules`
+- `gecmisOtomatikCikis()` içindeki sınır `duration.value(9, 'h')` oldu ve yayınlandı.
+
+### Test
+- Kullanıcı Emerald'dayken konsoldan `girisZamani` 09:00 yapıldı → 1 dakika içinde turuncu uyarı, Geçmiş'te **18:00 · Emerald · Otomatik çıkış**, Ana Sayfa'da "hiçbir bölümde değilsiniz". Ardından QR ile giriş/çıkış yapıldı; `girisZamani` girişte o anın saatini aldı, çıkışta null oldu.
+- Not: Testte 18:00 çıkışı listede 20:02 girişinin altında göründü; çünkü konsoldan yazılan 09:00 sahte bir giriş saatiydi. Gerçek kullanımda bu sıra oluşmaz.

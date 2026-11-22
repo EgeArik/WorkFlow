@@ -100,7 +100,8 @@ class _PersonellerEkraniState extends State<PersonellerEkrani> {
         final liste = kullaniciSnap.data!
             .where(
               (k) =>
-                  _seciliBolumId == null || k.suAnkiBolumId == _seciliBolumId,
+                  _seciliBolumId == null ||
+                  (k.suAnIcerideMi && k.suAnkiBolumId == _seciliBolumId),
             )
             .where((k) => turkceKucukHarf(k.adSoyad).contains(_aranan))
             .toList();
@@ -179,7 +180,11 @@ class _PersonelSatiri extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  k.suAnkiBolumAdi ?? 'Bölümde değil',
+                  k.suAnIcerideMi
+                      ? (k.suAnkiBolumAdi ?? '')
+                      : k.icerideMi
+                      ? 'Otomatik çıkış (9 saat doldu)'
+                      : 'Bölümde değil',
                   style: const TextStyle(color: Renkler.griYazi, fontSize: 13),
                 ),
                 Text(
@@ -189,7 +194,7 @@ class _PersonelSatiri extends StatelessWidget {
               ],
             ),
           ),
-          k.icerideMi
+          k.suAnIcerideMi
               ? const Rozet(yazi: 'İçeride', renk: Renkler.basari)
               : const Rozet(yazi: 'Dışarıda', renk: Renkler.griYazi),
         ],

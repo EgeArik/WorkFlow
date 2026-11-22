@@ -113,8 +113,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
           _KucukKart(
             ikon: Icons.work_outline,
             baslik: 'Durum',
-            deger: k.icerideMi ? 'Çalışıyor' : 'Dışarıda',
-            renk: k.icerideMi ? Renkler.basari : Renkler.griYazi,
+            deger: k.suAnIcerideMi ? 'Çalışıyor' : 'Dışarıda',
+            renk: k.suAnIcerideMi ? Renkler.basari : Renkler.griYazi,
           ),
         ],
       ),
@@ -244,7 +244,7 @@ class _BolumKartiState extends State<_BolumKarti> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: kartDekorasyonu(),
-      child: k.icerideMi ? _iceride(k) : _disarida(),
+      child: k.suAnIcerideMi ? _iceride(k) : _disarida(),
     );
   }
 

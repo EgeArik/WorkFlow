@@ -9,7 +9,7 @@ Testler 22 Kasım 2026'da gerçek bir Android telefonda (Xiaomi) uygulamanın de
 | 2b | Pasif bölümden çıkış | Kişi bölümün içindeyken bölüm pasif yapıldı, QR okutuldu | Normal çıkış ekranı; çıkış kaydedildi | ✅ Başarılı |
 | 3 | İnternet kesintisi | Wi-Fi ve mobil veri kapatıldı, QR okutulmaya çalışıldı | Alt menünün üstünde kırmızı "İnternet bağlantısı yok" şeridi; okutmada internet hatası | ✅ Başarılı |
 | 4 | Kamera izni reddi | İzin penceresinde "İzin verme" seçildi | "Kamera izni verilmedi" + "Ayarlara git" butonu; izin verilip dönülünce kamera açılır | ✅ Başarılı (ilk denemede hata bulundu ve düzeltildi, aşağıya bakın) |
-| 5 | Çıkışı unutma | Konsoldan kullanıcının giriş zamanı önceki güne alındı, uygulama açıldı | Turuncu bilgi mesajı; Geçmiş'te girişten 8 saat sonrasına otomatik çıkış | ✅ Başarılı (Gün 4'te denendi) |
+| 5 | Çıkışı unutma (9 saat kuralı) | Kullanıcı bir bölümdeyken konsoldan giriş zamanı 9 saatten daha eskiye (09:00) alındı | 1 dakika içinde turuncu bilgi mesajı; Geçmiş'te tam giriş + 9 saate (18:00) otomatik çıkış; kişi Dışarıda | ✅ Başarılı |
 | 6 | Aynı QR'ı art arda okutma | Aynı QR 10 saniye içinde iki kez okutuldu | Turuncu "Bu QR az önce okutuldu" mesajı, yeni kayıt yok | ✅ Başarılı |
 | 7 | Personelin yönetici verisine erişmesi | Personel hesabıyla giriş yapıldı | Alt menüde Yönetim sekmesi yok; Geçmiş'te sadece kendi kayıtları. Güvenlik kuralları da başkasının verisini okumayı reddeder | ✅ Başarılı |
 

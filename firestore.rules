@@ -67,7 +67,7 @@ service cloud.firestore {
     // Unutulan çıkışın geçmiş bir zamana yazılmasına izin veren TEK istisna:
     // - tür "otomatik_cikis" olmalı,
     // - bölüm, kişinin şu an içinde göründüğü bölüm olmalı,
-    // - zaman, kişinin giriş zamanı ile giriş + 8 saat arasında ve şu andan önce olmalı.
+    // - zaman, kişinin giriş zamanı ile giriş + 9 saat arasında ve şu andan önce olmalı (Gün 7 sonu: 8 -> 9 saat).
     // get() yazmadan ÖNCEKİ kullanıcı dokümanını okur (aynı batch'te temizlenmeden önceki hâli).
     function gecmisOtomatikCikis() {
       let k = get(/databases/$(database)/documents/kullanicilar/$(request.auth.uid)).data;
@@ -77,7 +77,7 @@ service cloud.firestore {
         && k.girisZamani is timestamp
         && request.resource.data.bolumId == k.suAnkiBolumId
         && z >= k.girisZamani
-        && z <= k.girisZamani + duration.value(8, 'h')
+        && z <= k.girisZamani + duration.value(9, 'h')
         && z < request.time;
     }
 

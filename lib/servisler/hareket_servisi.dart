@@ -79,14 +79,8 @@ class HareketServisi {
         }
         final bolum = Bolum.firestoredan(bolumDok);
         final kullanici = Kullanici.firestoredan(kullaniciDok);
-        final suAnkiId = kullanici.suAnkiBolumId;
-
-        // Pasif bölüme GİRİLEMEZ; ama kişi zaten içindeyse ÇIKABİLİR (Durum B'ye devam eder).
-        if (!bolum.aktif && suAnkiId != bolum.id) {
-          throw OkutmaHatasi(
-            'Bu bölüm (${bolum.ad}) şu an pasif. Giriş yapamazsınız.',
-          );
-        }
+        // "var": aşağıda 9 saat dolduysa null yapılabilir.
+        var suAnkiId = kullanici.suAnkiBolumId;
 
         // Her hareket kaydında ortak olan alanlar. Zaman SUNUCUDAN alınır.
         Map<String, dynamic> hareketVerisi(
@@ -101,6 +95,31 @@ class HareketServisi {
           'tur': tur,
           'zaman': FieldValue.serverTimestamp(),
         };
+
+        // 9 SAAT DOLDUYSA: eski giriş "giriş + 9 saat" zamanlı otomatik çıkışla kapatılır
+        // ve bu okutma YENİ GİRİŞ sayılır. Yoksa ertesi sabah aynı QR okutulunca
+        // yanlışlıkla "çıkış" olurdu.
+        final giris = kullanici.girisZamani;
+        if (suAnkiId != null && giris != null && kullanici.suresiDolduMu) {
+          tx.set(hareketler.doc(), {
+            ...hareketVerisi(
+              suAnkiId,
+              kullanici.suAnkiBolumAdi ?? '',
+              'otomatik_cikis',
+            ),
+            // "..." (spread): haritanın tüm alanlarını kopyalar; "zaman"ı geçmiş saatle ezeriz.
+            'zaman': Timestamp.fromDate(giris.add(otomatikCikisSuresi)),
+          });
+          suAnkiId =
+              null; // artık hiçbir bölümde değil -> aşağıda DURUM A (giriş)
+        }
+
+        // Pasif bölüme GİRİLEMEZ; ama kişi zaten içindeyse ÇIKABİLİR (Durum B'ye devam eder).
+        if (!bolum.aktif && suAnkiId != bolum.id) {
+          throw OkutmaHatasi(
+            'Bu bölüm (${bolum.ad}) şu an pasif. Giriş yapamazsınız.',
+          );
+        }
 
         // DURUM A: hiçbir bölümde değil -> GİRİŞ
         if (suAnkiId == null) {
@@ -170,27 +189,17 @@ class HareketServisi {
     }
   }
 
-  // ÇIKIŞI UNUTMA: önceki günden açık kayıt kaldıysa sessizce otomatik çıkış yapar.
-  // Kapatılan bölümün adını döndürür; kapatılacak bir şey yoksa null.
-  // Kayıt zamanı TAHMİNİDİR: girişten 8 saat sonra (bir mesai günü), ama giriş gününün
-  // 23:59'unu geçmez. Gerçek çıkış saatini Gün 6'da yönetici düzeltebilecek.
-  static const tahminiMesai = Duration(hours: 8);
-
+  // ÇIKIŞI UNUTMA: girişin üzerinden 9 saat (otomatikCikisSuresi) geçtiyse sessizce
+  // otomatik çıkış yapar. Kapatılan bölümün adını döndürür; kapatılacak bir şey yoksa null.
+  // Çıkış zamanı her zaman tam "giriş + 9 saat"tir; kayıt ne zaman yazılırsa yazılsın
+  // (uygulama ertesi gün açılsa bile) saat doğru olur.
   Future<String?> eskiAcikKaydiKapat(Kullanici kullanici) async {
     final giris = kullanici.girisZamani;
     final suAnkiId = kullanici.suAnkiBolumId;
-    if (suAnkiId == null || giris == null) return null;
-
-    final simdi = DateTime.now();
-    final bugunBaslangic = DateTime(simdi.year, simdi.month, simdi.day);
-    if (!giris.isBefore(bugunBaslangic)) {
-      return null; // giriş bugün yapılmış, sorun yok
+    if (suAnkiId == null || giris == null || !kullanici.suresiDolduMu) {
+      return null; // içeride değil ya da 9 saat dolmadı
     }
-
-    // Tahmini çıkış: giriş + 8 saat; giriş günü 23:59'u geçerse 23:59.
-    final gunSonu = DateTime(giris.year, giris.month, giris.day, 23, 59);
-    var tahminiCikis = giris.add(tahminiMesai);
-    if (tahminiCikis.isAfter(gunSonu)) tahminiCikis = gunSonu;
+    final tahminiCikis = giris.add(otomatikCikisSuresi);
 
     final bolumAdi = kullanici.suAnkiBolumAdi ?? '';
     // Batch: transaction gibi "ya hepsi ya hiçbiri", ama önce okuma yapmaz; sadece yazar.
@@ -202,7 +211,7 @@ class HareketServisi {
       'bolumAdi': bolumAdi,
       'tur': 'otomatik_cikis',
       // Sunucu saati değil, hesapladığımız geçmiş zaman. Güvenlik kuralı buna yalnızca
-      // otomatik çıkışta ve "giriş ile giriş+8 saat arası" olduğunda izin verir.
+      // otomatik çıkışta ve "giriş ile giriş+9 saat arası" olduğunda izin verir.
       'zaman': Timestamp.fromDate(tahminiCikis),
     });
     batch.update(_db.collection('kullanicilar').doc(kullanici.uid), {
