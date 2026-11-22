@@ -56,19 +56,32 @@ class _OkutmaSonucEkraniState extends State<OkutmaSonucEkrani> {
                 children: [
                   Icon(g.ikon, color: Colors.white, size: 110),
                   const SizedBox(height: 24),
-                  Text(g.ust, style: const TextStyle(color: Colors.white70, fontSize: 18)),
+                  Text(
+                    g.ust,
+                    style: const TextStyle(color: Colors.white70, fontSize: 18),
+                  ),
                   const SizedBox(height: 4),
-                  Text(g.baslik,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                  Text(
+                    g.baslik,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   for (final satir in g.satirlar)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: Text(satir,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white, fontSize: 17)),
+                      child: Text(
+                        satir,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -102,7 +115,10 @@ class _OkutmaSonucEkraniState extends State<OkutmaSonucEkrani> {
           ikon: Icons.login,
           ust: 'Hoş geldiniz',
           baslik: s.bolumAdi,
-          satirlar: ['Giriş kaydedildi · $saat', 'Çıkış için aynı QR kodu tekrar okutun.'],
+          satirlar: [
+            'Giriş kaydedildi · $saat',
+            'Çıkış için aynı QR kodu tekrar okutun.',
+          ],
         );
       case OkutmaTuru.cikis:
         return _Gorunum(
@@ -118,7 +134,10 @@ class _OkutmaSonucEkraniState extends State<OkutmaSonucEkrani> {
           ikon: Icons.swap_horiz,
           ust: 'Bölüm değişti',
           baslik: '${s.eskiBolumAdi} → ${s.bolumAdi}',
-          satirlar: ['${s.eskiBolumAdi}: otomatik çıkış', '${s.bolumAdi}: giriş · $saat'],
+          satirlar: [
+            '${s.eskiBolumAdi}: otomatik çıkış',
+            '${s.bolumAdi}: giriş · $saat',
+          ],
         );
     }
   }

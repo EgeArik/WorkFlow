@@ -84,8 +84,10 @@ class _GirisEkraniState extends State<GirisEkrani> {
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                   validator: (deger) {
-                    if (deger == null || deger.trim().isEmpty) return 'E-posta girin';
-                    if (!deger.contains('@')) return 'Geçerli bir e-posta girin';
+                    if (deger == null || deger.trim().isEmpty)
+                      return 'E-posta girin';
+                    if (!deger.contains('@'))
+                      return 'Geçerli bir e-posta girin';
                     return null; // null = hata yok
                   },
                 ),
@@ -100,9 +102,12 @@ class _GirisEkraniState extends State<GirisEkrani> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     // Şifreyi göster/gizle butonu
                     suffixIcon: IconButton(
-                      icon: Icon(_sifreGizli ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        _sifreGizli ? Icons.visibility : Icons.visibility_off,
+                      ),
                       tooltip: _sifreGizli ? 'Şifreyi göster' : 'Şifreyi gizle',
-                      onPressed: () => setState(() => _sifreGizli = !_sifreGizli),
+                      onPressed: () =>
+                          setState(() => _sifreGizli = !_sifreGizli),
                     ),
                   ),
                   validator: (deger) =>
@@ -115,7 +120,10 @@ class _GirisEkraniState extends State<GirisEkrani> {
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
                         )
                       : const Text('Giriş Yap'),
                 ),
@@ -124,15 +132,20 @@ class _GirisEkraniState extends State<GirisEkrani> {
                   onPressed: _yukleniyor
                       ? null
                       : () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const KayitEkrani()),
+                          MaterialPageRoute(
+                            builder: (_) => const KayitEkrani(),
                           ),
+                        ),
                   child: const Text('Hesabınız yok mu? Hesap oluştur'),
                 ),
                 const SizedBox(height: 40),
                 const Text(
                   'Doğru İnsan, Doğru Bölüm, Daha Verimli Üretim.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Renkler.griYazi, fontStyle: FontStyle.italic),
+                  style: TextStyle(
+                    color: Renkler.griYazi,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
             ),

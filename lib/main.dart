@@ -18,9 +18,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase'i bu telefonun platformuna (Android/iOS) uygun ayarlarla başlatır.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const WorkFlowApp());
 }
@@ -50,12 +48,17 @@ class OturumKapisi extends StatelessWidget {
       stream: AuthServisi().oturumDegisiklikleri,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final kullanici = snapshot.data;
         if (kullanici == null) return const GirisEkrani();
         // ValueKey: farklı bir hesapla girilirse eski kullanıcının ekranı yeniden kullanılmasın.
-        return KullaniciYukleyici(key: ValueKey(kullanici.uid), uid: kullanici.uid);
+        return KullaniciYukleyici(
+          key: ValueKey(kullanici.uid),
+          uid: kullanici.uid,
+        );
       },
     );
   }
@@ -97,7 +100,10 @@ class _KullaniciYukleyiciState extends State<KullaniciYukleyici> {
                 if (snapshot.hasError)
                   const Padding(
                     padding: EdgeInsets.all(24),
-                    child: Text('Kullanıcı bilgileri yüklenemedi.', textAlign: TextAlign.center),
+                    child: Text(
+                      'Kullanıcı bilgileri yüklenemedi.',
+                      textAlign: TextAlign.center,
+                    ),
                   )
                 else
                   const CircularProgressIndicator(),

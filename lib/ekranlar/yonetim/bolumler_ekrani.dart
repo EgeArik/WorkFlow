@@ -20,12 +20,17 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
   late final Stream<List<Bolum>> _akis = _servis.bolumlerAkisi();
 
   void _qrAc(Bolum bolum) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => BolumQrEkrani(bolum: bolum)));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => BolumQrEkrani(bolum: bolum)));
   }
 
   // "Bölüm Ekle": ad sorulur, kaydedilir, QR ekranı otomatik açılır.
   Future<void> _bolumEkle() async {
-    final ad = await showDialog<String>(context: context, builder: (_) => const _BolumAdiDialogu());
+    final ad = await showDialog<String>(
+      context: context,
+      builder: (_) => const _BolumAdiDialogu(),
+    );
     if (ad == null || ad.trim().isEmpty) return; // vazgeçildi
 
     try {
@@ -33,10 +38,14 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
       if (mounted) _qrAc(yeni);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Bölüm eklenemedi. İnternet bağlantınızı ve yetkinizi kontrol edin.'),
-        backgroundColor: Renkler.hata,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Bölüm eklenemedi. İnternet bağlantınızı ve yetkinizi kontrol edin.',
+          ),
+          backgroundColor: Renkler.hata,
+        ),
+      );
     }
   }
 
@@ -59,16 +68,25 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
           if (snapshot.hasError) {
             return const Center(child: Text('Bölümler yüklenemedi.'));
           }
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
           final bolumler = snapshot.data!;
           if (bolumler.isEmpty) {
             return const Center(
-                child: Text('Henüz bölüm yok. "Bölüm Ekle" ile başlayın.',
-                    style: TextStyle(color: Renkler.griYazi)));
+              child: Text(
+                'Henüz bölüm yok. "Bölüm Ekle" ile başlayın.',
+                style: TextStyle(color: Renkler.griYazi),
+              ),
+            );
           }
           // ListView.separated: elemanların arasına boşluk koyarak liste çizer.
           return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 96), // altta buton için boşluk
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              96,
+            ), // altta buton için boşluk
             itemCount: bolumler.length,
             separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, i) {
@@ -79,10 +97,16 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(b.ad,
-                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                      child: Text(
+                        b.ad,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    if (!b.aktif) const Rozet(yazi: 'Pasif', renk: Renkler.hata),
+                    if (!b.aktif)
+                      const Rozet(yazi: 'Pasif', renk: Renkler.hata),
                     TextButton.icon(
                       onPressed: () => _qrAc(b),
                       icon: const Icon(Icons.qr_code),
@@ -124,11 +148,17 @@ class _BolumAdiDialoguState extends State<_BolumAdiDialogu> {
         controller: _controller,
         autofocus: true,
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(labelText: 'Bölüm adı', hintText: 'Örn. A Bölümü'),
+        decoration: const InputDecoration(
+          labelText: 'Bölüm adı',
+          hintText: 'Örn. A Bölümü',
+        ),
         onSubmitted: (ad) => Navigator.of(context).pop(ad),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Vazgeç')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Vazgeç'),
+        ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(_controller.text),
           child: const Text('Kaydet'),

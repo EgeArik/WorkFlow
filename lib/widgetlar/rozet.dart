@@ -18,7 +18,11 @@ class Rozet extends StatelessWidget {
       ),
       child: Text(
         yazi,
-        style: TextStyle(color: renk, fontWeight: FontWeight.w600, fontSize: 12),
+        style: TextStyle(
+          color: renk,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
       ),
     );
   }

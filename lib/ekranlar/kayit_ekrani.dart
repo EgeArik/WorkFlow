@@ -84,7 +84,8 @@ class _KayitEkraniState extends State<KayitEkrani> {
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: _adSoyadController,
-                  textCapitalization: TextCapitalization.words, // her kelimenin ilk harfi büyük
+                  textCapitalization:
+                      TextCapitalization.words, // her kelimenin ilk harfi büyük
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Ad Soyad',
@@ -130,9 +131,12 @@ class _KayitEkraniState extends State<KayitEkrani> {
                     helperText: 'En az 6 karakter',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(_sifreGizli ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        _sifreGizli ? Icons.visibility : Icons.visibility_off,
+                      ),
                       tooltip: _sifreGizli ? 'Şifreyi göster' : 'Şifreyi gizle',
-                      onPressed: () => setState(() => _sifreGizli = !_sifreGizli),
+                      onPressed: () =>
+                          setState(() => _sifreGizli = !_sifreGizli),
                     ),
                   ),
                   validator: (d) {
@@ -148,7 +152,10 @@ class _KayitEkraniState extends State<KayitEkrani> {
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
                         )
                       : const Text('Hesap Oluştur'),
                 ),

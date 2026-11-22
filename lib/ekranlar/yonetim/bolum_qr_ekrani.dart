@@ -12,14 +12,20 @@ class BolumQrEkrani extends StatelessWidget {
   const BolumQrEkrani({super.key, required this.bolum});
 
   Future<void> _pdfIndir(BuildContext context) async {
-    final mesajlar = ScaffoldMessenger.of(context); // await'ten önce alırız (ekran kapanabilir)
+    final mesajlar = ScaffoldMessenger.of(
+      context,
+    ); // await'ten önce alırız (ekran kapanabilir)
     try {
       await PdfServisi().qrPdfIndir(bolum);
     } catch (_) {
-      mesajlar.showSnackBar(const SnackBar(
-        content: Text('PDF oluşturulamadı. İnternet bağlantınızı kontrol edin.'),
-        backgroundColor: Renkler.hata,
-      ));
+      mesajlar.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'PDF oluşturulamadı. İnternet bağlantınızı kontrol edin.',
+          ),
+          backgroundColor: Renkler.hata,
+        ),
+      );
     }
   }
 
@@ -40,10 +46,15 @@ class BolumQrEkrani extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(bolum.ad,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.bold, color: Renkler.lacivert)),
+                Text(
+                  bolum.ad,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Renkler.lacivert,
+                  ),
+                ),
                 const SizedBox(height: 20),
                 // QrImageView: verilen metni QR koduna çevirip çizer.
                 QrImageView(
@@ -52,12 +63,16 @@ class BolumQrEkrani extends StatelessWidget {
                   backgroundColor: Colors.white,
                 ),
                 const SizedBox(height: 16),
-                const Text('Giriş ve çıkış için okutun',
-                    style: TextStyle(color: Renkler.griYazi, fontSize: 16)),
+                const Text(
+                  'Giriş ve çıkış için okutun',
+                  style: TextStyle(color: Renkler.griYazi, fontSize: 16),
+                ),
                 if (!bolum.aktif) ...[
                   const SizedBox(height: 12),
-                  const Text('Bu bölüm pasif: okutulursa reddedilir.',
-                      style: TextStyle(color: Renkler.hata)),
+                  const Text(
+                    'Bu bölüm pasif: okutulursa reddedilir.',
+                    style: TextStyle(color: Renkler.hata),
+                  ),
                 ],
                 const SizedBox(height: 24),
                 ElevatedButton.icon(

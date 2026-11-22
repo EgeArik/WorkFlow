@@ -13,7 +13,10 @@ class AuthServisi {
 
   Future<void> girisYap({required String eposta, required String sifre}) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: eposta.trim(), password: sifre);
+      await _auth.signInWithEmailAndPassword(
+        email: eposta.trim(),
+        password: sifre,
+      );
     } on FirebaseAuthException catch (e) {
       throw AuthHatasi(_turkceMesaj(e.code));
     }
@@ -53,11 +56,40 @@ class AuthServisi {
     } catch (_) {
       // Doküman yazılamadıysa yarım hesap kalmasın diye Authentication hesabını da sileriz.
       await kullanici.delete();
-      throw AuthHatasi('Hesap bilgileri kaydedilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+      throw AuthHatasi(
+        'Hesap bilgileri kaydedilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.',
+      );
     }
   }
 
   Future<void> cikisYap() => _auth.signOut();
+
+  // Şifre değiştirme. Firebase güvenlik gereği önce MEVCUT şifreyle kimliği tekrar doğrular
+  // (reauthenticate). Böylece telefonu açık bırakılan biri başkası tarafından şifresini değiştiremez.
+  Future<void> sifreDegistir({
+    required String mevcutSifre,
+    required String yeniSifre,
+  }) async {
+    final kullanici = _auth.currentUser;
+    final eposta = kullanici?.email;
+    if (kullanici == null || eposta == null)
+      throw AuthHatasi('Oturum bulunamadı.');
+    try {
+      // credential: "bu e-posta ve şifre" bilgisini taşıyan kimlik belgesi.
+      final kimlik = EmailAuthProvider.credential(
+        email: eposta,
+        password: mevcutSifre,
+      );
+      await kullanici.reauthenticateWithCredential(kimlik);
+      await kullanici.updatePassword(yeniSifre);
+    } on FirebaseAuthException catch (e) {
+      // Bu ekranda "şifre hatalı" mesajı mevcut şifre için olmalı.
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        throw AuthHatasi('Mevcut şifre hatalı.');
+      }
+      throw AuthHatasi(_turkceMesaj(e.code));
+    }
+  }
 
   // Firebase'in İngilizce hata kodlarını kullanıcıya gösterilecek Türkçe mesajlara çevirir.
   String _turkceMesaj(String kod) {

@@ -12,7 +12,11 @@ class QrTaraEkrani extends StatefulWidget {
   // Ana Sayfa sekmesine döndürür. Geri butonunda ve başarılı okutmadan sonra çağrılır.
   final VoidCallback geriTiklandi;
 
-  const QrTaraEkrani({super.key, required this.uid, required this.geriTiklandi});
+  const QrTaraEkrani({
+    super.key,
+    required this.uid,
+    required this.geriTiklandi,
+  });
 
   @override
   State<QrTaraEkrani> createState() => _QrTaraEkraniState();
@@ -20,7 +24,9 @@ class QrTaraEkrani extends StatefulWidget {
 
 class _QrTaraEkraniState extends State<QrTaraEkrani> {
   // Kamerayı yöneten nesne. Sadece QR formatını arar (daha hızlı).
-  final _kamera = MobileScannerController(formats: const [BarcodeFormat.qrCode]);
+  final _kamera = MobileScannerController(
+    formats: const [BarcodeFormat.qrCode],
+  );
   final _hareketServisi = HareketServisi();
   bool _isleniyor = false; // bir okutma işlenirken yeni okutmaları yok say
 
@@ -52,7 +58,9 @@ class _QrTaraEkraniState extends State<QrTaraEkrani> {
     if (!mounted) return;
     // Tam ekran sonucu göster ve kapanmasını bekle.
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => OkutmaSonucEkrani(sonuc: sonuc, hata: hata)),
+      MaterialPageRoute(
+        builder: (_) => OkutmaSonucEkrani(sonuc: sonuc, hata: hata),
+      ),
     );
     if (!mounted) return;
     // Başarılı okutmadan sonra Ana Sayfa'ya dön (sekme değişince bu ekran ve kamera kapanır).
@@ -96,7 +104,9 @@ class _QrTaraEkraniState extends State<QrTaraEkrani> {
                       onPressed: () => _kamera.toggleTorch(),
                       tooltip: 'Flaş',
                       icon: Icon(
-                        durum.torchState == TorchState.on ? Icons.flash_on : Icons.flash_off,
+                        durum.torchState == TorchState.on
+                            ? Icons.flash_on
+                            : Icons.flash_off,
                         color: Colors.white,
                       ),
                     ),
@@ -113,9 +123,14 @@ class _QrTaraEkraniState extends State<QrTaraEkrani> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Bölüm QR kodunu okutun',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Bölüm QR kodunu okutun',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     const Text(
                       'Giriş mi çıkış mı olduğu mevcut durumunuza göre otomatik belirlenir.',
@@ -171,7 +186,11 @@ class _KameraHatasi extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.no_photography_outlined, color: Colors.white, size: 72),
+          const Icon(
+            Icons.no_photography_outlined,
+            color: Colors.white,
+            size: 72,
+          ),
           const SizedBox(height: 16),
           Text(
             izinYok

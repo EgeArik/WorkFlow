@@ -9,7 +9,8 @@ class Kullanici {
   final String eposta;
   final String gorev;
   final String rol; // "personel" veya "yonetici"
-  final String? suAnkiBolumId; // "?" = boş (null) olabilir: kişi hiçbir bölümde değilse null
+  final String?
+  suAnkiBolumId; // "?" = boş (null) olabilir: kişi hiçbir bölümde değilse null
   final String? suAnkiBolumAdi;
   final DateTime? girisZamani;
 
@@ -25,11 +26,15 @@ class Kullanici {
   });
 
   // factory constructor: hazır veriden (Firestore dokümanı) nesne üreten özel kurucu.
-  factory Kullanici.firestoredan(DocumentSnapshot<Map<String, dynamic>> dokuman) {
+  factory Kullanici.firestoredan(
+    DocumentSnapshot<Map<String, dynamic>> dokuman,
+  ) {
     final veri = dokuman.data()!;
     return Kullanici(
       uid: dokuman.id,
-      adSoyad: veri['adSoyad'] as String? ?? '', // "??" = soldaki null ise sağdakini kullan
+      adSoyad:
+          veri['adSoyad'] as String? ??
+          '', // "??" = soldaki null ise sağdakini kullan
       eposta: veri['eposta'] as String? ?? '',
       gorev: veri['gorev'] as String? ?? '',
       rol: veri['rol'] as String? ?? 'personel',
@@ -46,7 +51,11 @@ class Kullanici {
 
   // "Ege Arık" -> "EA". Avatar dairesinde gösterilir.
   String get basHarfler {
-    final parcalar = adSoyad.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parcalar = adSoyad
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parcalar.isEmpty) return '?';
     final ilk = parcalar.first[0];
     final son = parcalar.length > 1 ? parcalar.last[0] : '';

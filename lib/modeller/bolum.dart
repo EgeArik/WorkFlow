@@ -7,7 +7,8 @@ const qrOneki = 'workflow:bolum:';
 class Bolum {
   final String id; // rastgele doküman kimliği; QR'ın içinde bu var
   final String ad;
-  final bool aktif; // pasif bölümler okutulamaz ama silinmez (eski kayıtlar bozulmasın)
+  final bool
+  aktif; // pasif bölümler okutulamaz ama silinmez (eski kayıtlar bozulmasın)
 
   const Bolum({required this.id, required this.ad, required this.aktif});
 

@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw; // "as pw": PDF widget'ları Flutter'ınkilerle karışmasın
+import 'package:pdf/widgets.dart'
+    as pw; // "as pw": PDF widget'ları Flutter'ınkilerle karışmasın
 import 'package:printing/printing.dart';
 
 import '../modeller/bolum.dart';
@@ -13,7 +14,8 @@ class PdfServisi {
   // Bu yöntem depolama izni gerektirmez.
   Future<void> qrPdfIndir(Bolum bolum) async {
     await Printing.layoutPdf(
-      name: 'WorkFlow_${bolum.ad.replaceAll(' ', '_')}_QR', // önerilen dosya adı
+      name:
+          'WorkFlow_${bolum.ad.replaceAll(' ', '_')}_QR', // önerilen dosya adı
       format: PdfPageFormat.a4,
       onLayout: (_) => _pdfOlustur(bolum),
     );
@@ -35,9 +37,11 @@ class PdfServisi {
           child: pw.Column(
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: [
-              pw.Text(bolum.ad,
-                  textAlign: pw.TextAlign.center,
-                  style: pw.TextStyle(font: kalin, fontSize: 48)),
+              pw.Text(
+                bolum.ad,
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(font: kalin, fontSize: 48),
+              ),
               pw.SizedBox(height: 32),
               // BarcodeWidget: QR'ı VEKTÖR olarak çizer (kareler çizgi/şekil olarak).
               // Resim değil, bu yüzden ne kadar büyütülürse büyütülsün bulanıklaşmaz.
@@ -48,11 +52,19 @@ class PdfServisi {
                 height: 380,
               ),
               pw.SizedBox(height: 32),
-              pw.Text('Giriş ve çıkış için okutun',
-                  style: pw.TextStyle(font: normal, fontSize: 26)),
+              pw.Text(
+                'Giriş ve çıkış için okutun',
+                style: pw.TextStyle(font: normal, fontSize: 26),
+              ),
               pw.SizedBox(height: 12),
-              pw.Text('WorkFlow',
-                  style: pw.TextStyle(font: normal, fontSize: 14, color: PdfColors.grey600)),
+              pw.Text(
+                'WorkFlow',
+                style: pw.TextStyle(
+                  font: normal,
+                  fontSize: 14,
+                  color: PdfColors.grey600,
+                ),
+              ),
             ],
           ),
         ),

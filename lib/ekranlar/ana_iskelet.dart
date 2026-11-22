@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../modeller/kullanici.dart';
 import '../servisler/hareket_servisi.dart';
 import '../tema.dart';
-import '../widgetlar/yakinda_ekrani.dart';
 import 'ana_sayfa.dart';
+import 'gecmis_ekrani.dart';
 import 'profil_ekrani.dart';
 import 'qr_tara_ekrani.dart';
 import 'yonetim/bolumler_ekrani.dart';
@@ -44,12 +44,18 @@ class _AnaIskeletState extends State<AnaIskelet> {
   // sessizce otomatik çıkış yapılır ve kullanıcıya kısa bir bilgi gösterilir.
   Future<void> _eskiKaydiKontrolEt() async {
     try {
-      final kapatilan = await HareketServisi().eskiAcikKaydiKapat(widget.kullanici);
+      final kapatilan = await HareketServisi().eskiAcikKaydiKapat(
+        widget.kullanici,
+      );
       if (kapatilan == null || !mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Önceki günden açık kalan "$kapatilan" girişiniz otomatik kapatıldı.'),
-        backgroundColor: Renkler.uyari,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Önceki günden açık kalan "$kapatilan" girişiniz otomatik kapatıldı.',
+          ),
+          backgroundColor: Renkler.uyari,
+        ),
+      );
     } catch (_) {
       // İnternet yoksa sorun değil; bir sonraki açılışta tekrar denenir.
     }
@@ -60,22 +66,36 @@ class _AnaIskeletState extends State<AnaIskelet> {
   void _anaSayfayaGec() => setState(() => _seciliSira = 0);
 
   List<_Sekme> _sekmeleriOlustur() {
-    final k = widget.kullanici; // "widget." ile StatefulWidget'a verilen bilgiye ulaşırız
+    final k = widget
+        .kullanici; // "widget." ile StatefulWidget'a verilen bilgiye ulaşırız
     return [
-      _Sekme('Ana Sayfa', Icons.home_outlined, Icons.home,
-          AnaSayfa(kullanici: k, qrOkutTiklandi: _qrSekmesineGec)),
-      _Sekme('QR Tara', Icons.qr_code_scanner, Icons.qr_code_scanner,
-          QrTaraEkrani(uid: k.uid, geriTiklandi: _anaSayfayaGec)),
+      _Sekme(
+        'Ana Sayfa',
+        Icons.home_outlined,
+        Icons.home,
+        AnaSayfa(kullanici: k, qrOkutTiklandi: _qrSekmesineGec),
+      ),
+      _Sekme(
+        'QR Tara',
+        Icons.qr_code_scanner,
+        Icons.qr_code_scanner,
+        QrTaraEkrani(uid: k.uid, geriTiklandi: _anaSayfayaGec),
+      ),
       // "if" ile listeye koşullu eleman ekleriz: Yönetim sekmesi sadece yöneticide var.
       if (k.yoneticiMi)
-        const _Sekme('Yönetim', Icons.admin_panel_settings_outlined,
-            Icons.admin_panel_settings, BolumlerEkrani()),
-      const _Sekme('Geçmiş', Icons.history, Icons.history,
-          YakindaEkrani(
-              baslik: 'Geçmiş',
-              ikon: Icons.history,
-              aciklama: 'Hareket geçmişi Gün 4\'te eklenecek.')),
-      _Sekme('Profil', Icons.person_outline, Icons.person, ProfilEkrani(kullanici: k)),
+        const _Sekme(
+          'Yönetim',
+          Icons.admin_panel_settings_outlined,
+          Icons.admin_panel_settings,
+          BolumlerEkrani(),
+        ),
+      _Sekme('Geçmiş', Icons.history, Icons.history, GecmisEkrani(uid: k.uid)),
+      _Sekme(
+        'Profil',
+        Icons.person_outline,
+        Icons.person,
+        ProfilEkrani(kullanici: k),
+      ),
     ];
   }
 
@@ -90,7 +110,8 @@ class _AnaIskeletState extends State<AnaIskelet> {
       body: sekmeler[sira].ekran,
       bottomNavigationBar: NavigationBar(
         selectedIndex: sira,
-        onDestinationSelected: (yeniSira) => setState(() => _seciliSira = yeniSira),
+        onDestinationSelected: (yeniSira) =>
+            setState(() => _seciliSira = yeniSira),
         destinations: [
           for (final s in sekmeler)
             NavigationDestination(

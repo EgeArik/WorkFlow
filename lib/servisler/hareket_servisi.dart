@@ -24,7 +24,8 @@ class OkutmaSonucu {
 // Okutma reddedildiğinde fırlatılan hata; mesajı sonuç ekranında kırmızı gösterilir.
 class OkutmaHatasi implements Exception {
   final String mesaj;
-  final bool bilgi; // true ise hata değil bilgi (ör. çift okutma): turuncu gösterilir
+  final bool
+  bilgi; // true ise hata değil bilgi (ör. çift okutma): turuncu gösterilir
   OkutmaHatasi(this.mesaj, {this.bilgi = false});
 }
 
@@ -38,7 +39,10 @@ class HareketServisi {
   static DateTime? _sonOkutmaZamani;
   static const _ciftOkutmaSuresi = Duration(seconds: 10);
 
-  Future<OkutmaSonucu> qrOkut({required String qrMetni, required String uid}) async {
+  Future<OkutmaSonucu> qrOkut({
+    required String qrMetni,
+    required String uid,
+  }) async {
     // 1) QR bizim mi? Önek yoksa reddet.
     if (!qrMetni.startsWith(qrOneki)) {
       throw OkutmaHatasi('Geçersiz QR. Bu bir WorkFlow bölüm kodu değil.');
@@ -53,7 +57,10 @@ class HareketServisi {
     if (_sonBolumId == bolumId &&
         _sonOkutmaZamani != null &&
         simdi.difference(_sonOkutmaZamani!) < _ciftOkutmaSuresi) {
-      throw OkutmaHatasi('Bu QR az önce okutuldu. Tekrar kayıt yapılmadı.', bilgi: true);
+      throw OkutmaHatasi(
+        'Bu QR az önce okutuldu. Tekrar kayıt yapılmadı.',
+        bilgi: true,
+      );
     }
 
     final kullaniciRef = _db.collection('kullanicilar').doc(uid);
@@ -67,22 +74,28 @@ class HareketServisi {
         final kullaniciDok = await tx.get(kullaniciRef);
         final bolumDok = await tx.get(bolumRef);
 
-        if (!bolumDok.exists) throw OkutmaHatasi('Geçersiz QR. Böyle bir bölüm yok.');
+        if (!bolumDok.exists)
+          throw OkutmaHatasi('Geçersiz QR. Böyle bir bölüm yok.');
         final bolum = Bolum.firestoredan(bolumDok);
-        if (!bolum.aktif) throw OkutmaHatasi('${bolum.ad} pasif durumda. Okutma yapılamaz.');
+        if (!bolum.aktif)
+          throw OkutmaHatasi('${bolum.ad} pasif durumda. Okutma yapılamaz.');
 
         final kullanici = Kullanici.firestoredan(kullaniciDok);
         final suAnkiId = kullanici.suAnkiBolumId;
 
         // Her hareket kaydında ortak olan alanlar. Zaman SUNUCUDAN alınır.
-        Map<String, dynamic> hareketVerisi(String bId, String bAd, String tur) => {
-              'kullaniciId': uid,
-              'kullaniciAdi': kullanici.adSoyad,
-              'bolumId': bId,
-              'bolumAdi': bAd,
-              'tur': tur,
-              'zaman': FieldValue.serverTimestamp(),
-            };
+        Map<String, dynamic> hareketVerisi(
+          String bId,
+          String bAd,
+          String tur,
+        ) => {
+          'kullaniciId': uid,
+          'kullaniciAdi': kullanici.adSoyad,
+          'bolumId': bId,
+          'bolumAdi': bAd,
+          'tur': tur,
+          'zaman': FieldValue.serverTimestamp(),
+        };
 
         // DURUM A: hiçbir bölümde değil -> GİRİŞ
         if (suAnkiId == null) {
@@ -92,7 +105,11 @@ class HareketServisi {
             'suAnkiBolumAdi': bolum.ad,
             'girisZamani': FieldValue.serverTimestamp(),
           });
-          return OkutmaSonucu(tur: OkutmaTuru.giris, bolumAdi: bolum.ad, zaman: simdi);
+          return OkutmaSonucu(
+            tur: OkutmaTuru.giris,
+            bolumAdi: bolum.ad,
+            zaman: simdi,
+          );
         }
 
         // DURUM B: zaten bu bölümde -> ÇIKIŞ
@@ -103,12 +120,19 @@ class HareketServisi {
             'suAnkiBolumAdi': null,
             'girisZamani': null,
           });
-          return OkutmaSonucu(tur: OkutmaTuru.cikis, bolumAdi: bolum.ad, zaman: simdi);
+          return OkutmaSonucu(
+            tur: OkutmaTuru.cikis,
+            bolumAdi: bolum.ad,
+            zaman: simdi,
+          );
         }
 
         // DURUM C: başka bölümde -> eskisinden OTOMATİK ÇIKIŞ + yenisine GİRİŞ
         final eskiAd = kullanici.suAnkiBolumAdi ?? '';
-        tx.set(hareketler.doc(), hareketVerisi(suAnkiId, eskiAd, 'otomatik_cikis'));
+        tx.set(
+          hareketler.doc(),
+          hareketVerisi(suAnkiId, eskiAd, 'otomatik_cikis'),
+        );
         tx.set(hareketler.doc(), hareketVerisi(bolum.id, bolum.ad, 'giris'));
         tx.update(kullaniciRef, {
           'suAnkiBolumId': bolum.id,
@@ -116,7 +140,11 @@ class HareketServisi {
           'girisZamani': FieldValue.serverTimestamp(),
         });
         return OkutmaSonucu(
-            tur: OkutmaTuru.gecis, bolumAdi: bolum.ad, eskiBolumAdi: eskiAd, zaman: simdi);
+          tur: OkutmaTuru.gecis,
+          bolumAdi: bolum.ad,
+          eskiBolumAdi: eskiAd,
+          zaman: simdi,
+        );
       });
 
       // Başarılı okutmayı hatırla (çift okutma koruması için).
@@ -126,7 +154,9 @@ class HareketServisi {
     } on FirebaseException catch (e) {
       // Firebase'in hata kodlarını Türkçe mesaja çevir.
       if (e.code == 'unavailable') {
-        throw OkutmaHatasi('İnternet bağlantısı yok. Kayıt yapılmadı, tekrar deneyin.');
+        throw OkutmaHatasi(
+          'İnternet bağlantısı yok. Kayıt yapılmadı, tekrar deneyin.',
+        );
       }
       if (e.code == 'permission-denied') {
         throw OkutmaHatasi('Bu işlem için yetkiniz yok veya QR geçersiz.');
@@ -145,7 +175,8 @@ class HareketServisi {
 
     final simdi = DateTime.now();
     final bugunBaslangic = DateTime(simdi.year, simdi.month, simdi.day);
-    if (!giris.isBefore(bugunBaslangic)) return null; // giriş bugün yapılmış, sorun yok
+    if (!giris.isBefore(bugunBaslangic))
+      return null; // giriş bugün yapılmış, sorun yok
 
     final bolumAdi = kullanici.suAnkiBolumAdi ?? '';
     // Batch: transaction gibi "ya hepsi ya hiçbiri", ama önce okuma yapmaz; sadece yazar.

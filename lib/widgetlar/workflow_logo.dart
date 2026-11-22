@@ -18,7 +18,11 @@ class WorkFlowLogo extends StatelessWidget {
             color: Renkler.lacivert,
             borderRadius: BorderRadius.circular(22),
           ),
-          child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 44),
+          child: const Icon(
+            Icons.qr_code_scanner,
+            color: Colors.white,
+            size: 44,
+          ),
         ),
         const SizedBox(height: 16),
         const Text(

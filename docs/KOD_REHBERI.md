@@ -220,3 +220,40 @@ QR okutuldu: "workflow:bolum:abc123"
 
 ### `pubspec.yaml` notu
 `image` paketi `<4.8.0` sürümüne sabitlendi: `pdf` paketi `archive` kütüphanesinin eski sürümünü, yeni `image` ise yenisini istiyordu; ikisi birlikte kurulamıyordu.
+
+---
+
+## Gün 4 dosyaları – Geçmiş ve Şifre Değiştir
+
+### `servisler/veri_servisi.dart` (Gün 4)
+- **`hareketlerAkisi(uid, baslangic)`**: Verilen andan sonraki hareketleri getirir. Ana Sayfa (bugün 00:00) ve Geçmiş (bugün / Pazartesi / ayın 1'i) aynı fonksiyonu farklı başlangıçla çağırır; kod tekrar etmez. Gün 2'deki indeks bu sorgu için de yeterlidir.
+
+### `yardimcilar/zaman_bicimi.dart` (Gün 4)
+- **`gunBasligi()`**: `DateTime` → "22 Kasım Pazar". Ay ve gün adları Türkçe listelerden alınır (`month` 1-12, `weekday` 1=Pazartesi … 7=Pazar).
+- **`gunBaslangici()`**: Tarihin saatini 00:00 yapar; iki kaydın aynı günde olup olmadığını karşılaştırmak için.
+
+### `widgetlar/hareket_zaman_cizelgesi.dart`
+- Dikey zaman çizelgesi: **saat | renkli nokta + gri çizgi | bölüm kartı + rozet**.
+- Gün değişince araya **gün başlığı** ekler; günün son kaydında çizgiyi keser (`cizgiDevam`).
+- `IntrinsicHeight` sayesinde soldaki çizgi, sağdaki kartın boyu kadar uzar.
+- `turRengi()`: giriş yeşil, çıkış mavi, otomatik çıkış turuncu. Gün 6'da yönetici Hareketler ekranında da kullanılacak.
+
+### `ekranlar/gecmis_ekrani.dart`
+- **`SegmentedButton`**: Bugün / Bu hafta / Bu ay; aynı anda bir seçenek seçilir.
+- **`_akisOlustur()`**: Seçime göre başlangıç anını hesaplar. Bu hafta = bugünden `weekday - 1` gün geri (Pazartesi). Filtre değişince akış yeniden oluşturulur.
+- Boş dönemde "Bu dönemde hareket yok." yazar; üstte kayıt sayısı görünür.
+
+### `servisler/auth_servisi.dart` (Gün 4)
+- **`sifreDegistir()`**: Önce mevcut şifreyle **yeniden kimlik doğrulama** (`reauthenticateWithCredential`), sonra `updatePassword`. Firebase bunu zorunlu tutar: telefonu açık bırakılan birinin şifresini başkası değiştiremesin.
+- `EmailAuthProvider.credential`: "bu e-posta + bu şifre" bilgisini taşıyan kimlik belgesi.
+
+### `ekranlar/sifre_degistir_ekrani.dart`
+- Üç alan: mevcut şifre, yeni şifre (en az 6 karakter, eskisiyle aynı olamaz), yeni şifre tekrar (eşleşmeli).
+- `_sifreAlani()`: Üç alan aynı görünümde olduğu için ortak fonksiyon. Tek düğme üçünün de göster/gizle durumunu değiştirir.
+- Başarılıysa yeşil mesajla Profil'e döner.
+
+### `ekranlar/profil_ekrani.dart` (Gün 4)
+- Çerçeveli (`OutlinedButton`) **Şifre Değiştir** butonu eklendi; ikincil işlem olduğu için Çıkış Yap'tan farklı görünür.
+
+### Bilinen sınırlama (düzeltilecek)
+Unutulan çıkış, uygulama **açıldığı anın** tarihiyle kaydediliyor (ör. Perşembe giriş → Pazar otomatik çıkış). Sebep: güvenlik kuralı hareket zamanının sunucu saati olmasını istiyor. Bir sonraki adımda otomatik çıkış "girişten 8 saat sonra" olarak yazılacak.
