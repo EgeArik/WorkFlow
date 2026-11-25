@@ -220,7 +220,7 @@ class _KameraHatasi extends StatelessWidget {
   Widget build(BuildContext context) {
     final izinYok = hata.errorCode == MobileScannerErrorCode.permissionDenied;
     return Container(
-      color: Renkler.lacivert,
+      color: Renkler.petrol,
       padding: const EdgeInsets.all(32),
       alignment: Alignment.center,
       child: Column(

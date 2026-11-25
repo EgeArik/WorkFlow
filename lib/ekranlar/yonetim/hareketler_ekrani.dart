@@ -175,7 +175,7 @@ class _HareketlerEkraniState extends State<HareketlerEkrani> {
           decoration: kartDekorasyonu(),
           child: Row(
             children: [
-              const Icon(Icons.timer_outlined, color: Renkler.mavi, size: 32),
+              const Icon(Icons.timer_outlined, color: Renkler.petrol, size: 32),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -190,7 +190,7 @@ class _HareketlerEkraniState extends State<HareketlerEkrani> {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Renkler.lacivert,
+                        color: Renkler.petrol,
                       ),
                     ),
                   ],

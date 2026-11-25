@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../modeller/kullanici.dart' show turkceBuyukHarf;
+
 // "İçeride", "Giriş", "Çıkış" gibi küçük renkli etiketler.
 // Arka plan, aynı rengin çok açık (saydam) hâlidir.
 class Rozet extends StatelessWidget {
@@ -11,17 +13,18 @@ class Rozet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: renk.withValues(alpha: 0.12), // %12 opaklık: açık arka plan
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        yazi,
+        turkceBuyukHarf(yazi), // tabela gibi büyük harf
         style: TextStyle(
           color: renk,
           fontWeight: FontWeight.w600,
-          fontSize: 12,
+          fontSize: 11,
+          letterSpacing: 0.6,
         ),
       ),
     );

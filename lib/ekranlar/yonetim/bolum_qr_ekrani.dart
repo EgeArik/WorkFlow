@@ -34,7 +34,7 @@ class BolumQrEkrani extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('QR Kodu'),
-        backgroundColor: Renkler.lacivert,
+        backgroundColor: Renkler.petrol,
         foregroundColor: Colors.white,
       ),
       body: Center(
@@ -52,7 +52,7 @@ class BolumQrEkrani extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Renkler.lacivert,
+                    color: Renkler.petrol,
                   ),
                 ),
                 const SizedBox(height: 20),

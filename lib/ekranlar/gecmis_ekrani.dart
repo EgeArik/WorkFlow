@@ -54,7 +54,7 @@ class _GecmisEkraniState extends State<GecmisEkrani> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Geçmiş'),
-        backgroundColor: Renkler.lacivert,
+        backgroundColor: Renkler.petrol,
         foregroundColor: Colors.white,
       ),
       body: Column(

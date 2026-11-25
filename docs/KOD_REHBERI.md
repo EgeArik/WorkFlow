@@ -412,3 +412,45 @@ QR okutuldu: "workflow:bolum:abc123"
 ### Test
 - Kullanıcı Emerald'dayken konsoldan `girisZamani` 09:00 yapıldı → 1 dakika içinde turuncu uyarı, Geçmiş'te **18:00 · Emerald · Otomatik çıkış**, Ana Sayfa'da "hiçbir bölümde değilsiniz". Ardından QR ile giriş/çıkış yapıldı; `girisZamani` girişte o anın saatini aldı, çıkışta null oldu.
 - Not: Testte 18:00 çıkışı listede 20:02 girişinin altında göründü; çünkü konsoldan yazılan 09:00 sahte bir giriş saatiydi. Gerçek kullanımda bu sıra oluşmaz.
+
+---
+
+## Arayüz tasarımı – yeni görünüm
+
+**Amaç:** Uygulama hazır şablon gibi (her yerde aynı mavi, beyaz kart, gölge) görünmesin; fabrikadaki işçi ve ofisteki çalışan için sade, okunaklı ve kendine ait bir görünüm olsun. Çalışma mantığına dokunulmadı; sadece görünüm değişti.
+
+**Seçimler:** Renkler petrol yeşili (ana), hardal sarısı (vurgu) ve krem (arka plan). Yazı tipi birçok seçenek arasından elenerek seçilen **Rubik** (köşeleri hafif yuvarlak, yumuşak ama sağlam). Personel ekranları büyük, yönetim ekranları sıkı.
+
+### `assets/fonts/` ve `pubspec.yaml`
+- Rubik'in 3 kalınlığı (Regular 400, Medium 500, SemiBold 600) ve lisans dosyası `OFL.txt` (açık lisans, ücretsiz).
+- `pubspec.yaml` → `fonts:` bölümü: Yazı tipi dosyaları uygulamanın **içine** konur; internet olmadan da çalışır. `weight:` hangi dosyanın hangi kalınlık olduğunu söyler.
+
+### `tema.dart`
+- **`Renkler`**: Yeni palet. Eski `lacivert` ve `mavi` kaldırıldı, yerine `petrol`, `hardal`, `kenar`, `yazi` geldi. Çıkış rengi artık kiremit (`hata`).
+- **`kartDekorasyonu()`**: Gölge kaldırıldı, yerine ince kenar çizgisi (`Border.all`).
+- **`KucukBaslik`**: "BUGÜN" gibi küçük başlıklar; büyük harf ve **`letterSpacing`** (harfler arası boşluk) ile tabela hissi verir. Türkçe "i → İ" için `turkceBuyukHarf` kullanılır.
+- **`ThemeData`** içine eklenenler: `fontFamily: 'Rubik'` (tüm uygulamada), `appBarTheme` (petrol üst çubuk), `navigationBarTheme` (alt menü; seçili sekmenin arkasında hardal hap), `tabBarTheme` (seçili sekme altında hardal çizgi), `chipTheme` (seçili filtre petrol dolgulu), `dividerTheme` (liste çizgileri).
+  - **`WidgetStateProperty.resolveWith`**: Bir değerin duruma göre (seçili mi, değil mi) değişmesini sağlar; alt menüde seçili sekmenin yazısı petrol ve kalın olur.
+
+### `widgetlar/workflow_logo.dart`
+- **`LogoIsareti`**: İçinde "W" olan kare; sol üst ve sağ alt köşede QR çerçevesini hatırlatan hardal çizgiler. Resim dosyası yok, kodla çizilir.
+  - **`Stack` + `Positioned`**: Parçaları üst üste koyar ve her birinin yerini (üstten/soldan uzaklık) ayarlar.
+- **`LogoYazisi`**: "Work" yarı kalın, "Flow" ince ve renkli. **`Text.rich` / `TextSpan`**: Tek yazı içinde farklı biçimli parçalar.
+- **`LogoSatiri`**: İşaret + yazı yan yana. `koyuZemin: true` ise petrol zemine uygun renkler (beyaz kare, sarı "Flow").
+
+### `ekranlar/ana_sayfa.dart`
+- **Üst şerit (`_UstSerit`)**: Petrol zeminde logo ve saate göre selam ("Günaydın / İyi günler / İyi akşamlar, Ad").
+- **Durum kartı**: Solda renkli şerit (yeşil = içeride, gri = dışarıda), büyük bölüm adı ve süre. **`clipBehavior: Clip.antiAlias`**: Şeridin kartın yuvarlak köşesinden taşmasını engeller.
+- **QR butonu**: Hardal sarısı, 72 px yüksek; personelin en çok bastığı yer olduğu için en büyük öğe.
+- **Bugün listesi**: Tek kart içinde, satırlar `Divider` ile ayrılır. Saatler **`FontFeature.tabularFigures()`** ile yazılır: tüm rakamlar aynı genişlikte olur, saatler alt alta düzgün hizalanır.
+- "Durum" küçük kartı kaldırıldı; aynı bilgi artık büyük kartta.
+
+### Diğer ekranlar
+- **`okutma_sonuc_ekrani.dart`**: Tam ekran renkli; büyük bölüm adı sola yaslı, ikon çerçeveli karede, altında "Kapatmak için ekrana dokunun".
+- **`giris_ekrani.dart`**: Yeni logo; alttaki slogan düz yazı.
+- **Yönetim > Personeller ve Bölümler**: Her satır ayrı kart yerine **tek kart içinde çizgiyle ayrılmış** sıkı liste.
+- **`bas_harf_avatar.dart`**: Yuvarlak yerine köşeleri yuvarlak kare, açık petrol zemin.
+- **`rozet.dart`**: Küçük köşeli, büyük harfli etiket ("İÇERİDE", "DIŞARIDA").
+- **`yonetim_ekrani.dart`**, Geçmiş, Profil vb.: Renkler artık temadan geliyor.
+
+**Ekran görüntüleri:** `ekran-goruntuleri/tasarim-ana-sayfa.png`, `ekran-goruntuleri/tasarim-personeller.png`

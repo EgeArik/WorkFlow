@@ -171,77 +171,89 @@ class _BolumlerEkraniState extends State<BolumlerEkrani> {
       sonOkutma.putIfAbsent(h.bolumId, () => zaman);
     }
 
-    // ListView.separated: elemanların arasına boşluk koyarak liste çizer.
-    return ListView.separated(
+    // Yönetim ekranları sıkı: tek kart içinde, aralarında ince çizgi olan satırlar.
+    return ListView(
       padding: const EdgeInsets.fromLTRB(
         16,
         16,
         16,
         96,
       ), // altta buton için boşluk
-      itemCount: bolumler.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, i) {
-        final b = bolumler[i];
-        final son = sonOkutma[b.id];
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+      children: [
+        Container(
           decoration: kartDekorasyonu(),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              for (var i = 0; i < bolumler.length; i++) ...[
+                if (i > 0) const Divider(height: 1),
+                _bolumSatiri(bolumler[i], kisiSayisi, sonOkutma),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Tek bölüm satırı: ad, kişi sayısı, son okutma, QR ve "⋮" menüsü.
+  Widget _bolumSatiri(
+    Bolum b,
+    Map<String, int> kisiSayisi,
+    Map<String, DateTime> sonOkutma,
+  ) {
+    final son = sonOkutma[b.id];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            b.ad,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                    Flexible(
+                      child: Text(
+                        b.ad,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
-                        if (!b.aktif) ...[
-                          const SizedBox(width: 8),
-                          const Rozet(yazi: 'Pasif', renk: Renkler.hata),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${kisiSayisi[b.id] ?? 0} kişi içeride · Son okutma: '
-                      '${son == null ? '—' : kisaZamanYaz(son)}',
-                      style: const TextStyle(
-                        color: Renkler.griYazi,
-                        fontSize: 13,
                       ),
                     ),
+                    if (!b.aktif) ...[
+                      const SizedBox(width: 8),
+                      const Rozet(yazi: 'Pasif', renk: Renkler.hata),
+                    ],
                   ],
                 ),
-              ),
-              TextButton.icon(
-                onPressed: () => _qrAc(b),
-                icon: const Icon(Icons.qr_code),
-                label: const Text('QR Kodu'),
-              ),
-              // PopupMenuButton: "⋮" simgesi; basınca küçük bir seçenek menüsü açılır.
-              PopupMenuButton<String>(
-                tooltip: 'Diğer işlemler',
-                onSelected: (_) => _aktiflikDegistir(b),
-                itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'aktiflik',
-                    child: Text(b.aktif ? 'Pasif yap' : 'Aktif yap'),
-                  ),
-                ],
+                const SizedBox(height: 4),
+                Text(
+                  '${kisiSayisi[b.id] ?? 0} kişi içeride · Son okutma: '
+                  '${son == null ? '—' : kisaZamanYaz(son)}',
+                  style: const TextStyle(color: Renkler.griYazi, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => _qrAc(b),
+            icon: const Icon(Icons.qr_code),
+            label: const Text('QR Kodu'),
+          ),
+          // PopupMenuButton: "⋮" simgesi; basınca küçük bir seçenek menüsü açılır.
+          PopupMenuButton<String>(
+            tooltip: 'Diğer işlemler',
+            onSelected: (_) => _aktiflikDegistir(b),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'aktiflik',
+                child: Text(b.aktif ? 'Pasif yap' : 'Aktif yap'),
               ),
             ],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

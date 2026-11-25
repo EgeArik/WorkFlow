@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../modeller/kullanici.dart' show turkceBuyukHarf;
 import '../servisler/hareket_servisi.dart';
 import '../tema.dart';
 import '../yardimcilar/zaman_bicimi.dart';
@@ -48,43 +49,58 @@ class _OkutmaSonucEkraniState extends State<OkutmaSonucEkrani> {
         onTap: _kapat,
         behavior: HitTestBehavior.opaque,
         child: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(g.ikon, color: Colors.white, size: 110),
-                  const SizedBox(height: 24),
-                  Text(
-                    g.ust,
-                    style: const TextStyle(color: Colors.white70, fontSize: 18),
+          // Yazılar sola yaslı, ekranın ortasında; tabela gibi büyük ve net.
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Beyaz çerçeveli kare içinde ikon
+                Container(
+                  width: 76,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 3),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    g.baslik,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                  child: Icon(g.ikon, color: Colors.white, size: 42),
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  turkceBuyukHarf(g.ust),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  g.baslik,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 40,
+                    height: 1.1,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                for (final satir in g.satirlar)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      satir,
+                      style: const TextStyle(color: Colors.white, fontSize: 17),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  for (final satir in g.satirlar)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        satir,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Kapatmak için ekrana dokunun',
+                  style: TextStyle(color: Colors.white60, fontSize: 13),
+                ),
+              ],
             ),
           ),
         ),
@@ -122,7 +138,7 @@ class _OkutmaSonucEkraniState extends State<OkutmaSonucEkrani> {
         );
       case OkutmaTuru.cikis:
         return _Gorunum(
-          renk: Renkler.mavi,
+          renk: Renkler.petrol,
           ikon: Icons.logout,
           ust: 'Çıkış yapıldı',
           baslik: s.bolumAdi,

@@ -144,10 +144,7 @@ class _GirisEkraniState extends State<GirisEkrani> {
                 const Text(
                   'Doğru İnsan, Doğru Bölüm, Daha Verimli Üretim.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Renkler.griYazi,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  style: TextStyle(color: Renkler.griYazi),
                 ),
               ],
             ),

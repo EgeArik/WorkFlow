@@ -83,7 +83,7 @@ class _SifreDegistirEkraniState extends State<SifreDegistirEkrani> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Şifre Değiştir'),
-        backgroundColor: Renkler.lacivert,
+        backgroundColor: Renkler.petrol,
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(

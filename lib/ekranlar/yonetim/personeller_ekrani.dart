@@ -117,18 +117,27 @@ class _PersonellerEkraniState extends State<PersonellerEkrani> {
           stream: _hareketAkisi,
           builder: (context, hareketSnap) {
             final sonGiris = _sonGirisler(hareketSnap.data ?? const []);
-            return ListView.separated(
+            // Yönetim ekranları sıkı: tek kart içinde, aralarında ince çizgi olan satırlar.
+            return ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              itemCount: liste.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final k = liste[i];
-                // İçerideyse giriş zamanı kullanıcı dokümanında; değilse son hareketlerden.
-                return _PersonelSatiri(
-                  kullanici: k,
-                  sonGiris: k.girisZamani ?? sonGiris[k.uid],
-                );
-              },
+              children: [
+                Container(
+                  decoration: kartDekorasyonu(),
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < liste.length; i++) ...[
+                        if (i > 0) const Divider(height: 1),
+                        // İçerideyse giriş zamanı kullanıcı dokümanında; değilse son hareketlerden.
+                        _PersonelSatiri(
+                          kullanici: liste[i],
+                          sonGiris:
+                              liste[i].girisZamani ?? sonGiris[liste[i].uid],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             );
           },
         );
@@ -160,12 +169,11 @@ class _PersonelSatiri extends StatelessWidget {
   Widget build(BuildContext context) {
     final k = kullanici;
     final son = sonGiris;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: kartDekorasyonu(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
-          BasHarfAvatar(harfler: k.basHarfler, boyut: 44),
+          BasHarfAvatar(harfler: k.basHarfler, boyut: 40),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -175,7 +183,7 @@ class _PersonelSatiri extends StatelessWidget {
                   k.adSoyad,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 2),

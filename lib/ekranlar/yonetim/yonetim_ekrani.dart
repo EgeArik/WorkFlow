@@ -19,16 +19,14 @@ class YonetimEkrani extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Yönetim'),
-          backgroundColor: Renkler.lacivert,
+          backgroundColor: Renkler.petrol,
           foregroundColor: Colors.white,
           bottom: const TabBar(
             // Dar ekranda "Personeller" yazısı kesiliyordu; sekmeler yazı kadar geniş olsun,
             // sığmazsa yana kaydırılsın.
             isScrollable: true,
             tabAlignment: TabAlignment.center,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: Colors.white,
+            // Renkler tema.dart'taki tabBarTheme'den gelir (seçili sekmenin altında hardal çizgi).
             tabs: [
               Tab(text: 'Genel'),
               Tab(text: 'Personeller'),

@@ -20,7 +20,7 @@ WorkFlow, bir kurumdaki personelin gün içinde hangi bölümde olduğunu QR kod
 - Yönetici alt menüsü: Ana Sayfa, QR Tara, Yönetim, Geçmiş, Profil. "Yönetim" sekmesine yalnızca yönetici erişebilir. Yönetici personelin yaptığı her şeyi de yapabilir.
 
 ## 4. Ekranlar
-Tüm arayüz metinleri Türkçe. Tasarım sade, kurumsal, yuvarlatılmış beyaz kartlar, hafif gölge. Renkler: lacivert #101B35 (ana), mavi #2563EB (vurgu/buton), arka plan #F4F6FA, kart beyaz, başarı yeşili #15803D, hata kırmızısı #DC2626, uyarı turuncusu #F59E0B. Butonlar en az 44-52 px yüksekliğinde. Profil fotoğrafı yok, baş harfli avatar.
+Tüm arayüz metinleri Türkçe. Tasarım fabrika ve ofis için sade ve okunaklı: gölgesiz, ince kenar çizgili kartlar, tabela gibi büyük harfli küçük başlıklar. Yazı tipi Rubik (uygulamaya gömülü). Renkler: petrol yeşili #0E4A4F (ana), hardal sarısı #D99A2B (QR butonu, vurgu), krem arka plan #F4EFE4, kart #FFFCF6, giriş yeşili #2E7D4F, çıkış/hata kiremidi #B4472F, bilgi hardalı #C98A1B. Personel ekranları büyük (QR butonu 72 px), yönetim ekranları sıkı listeler. Logo kodla çizilir: köşeleri QR çerçevesini hatırlatan W işareti + "WorkFlow" yazısı. Profil fotoğrafı yok, baş harfli avatar.
 
 **Giriş / Kayıt:** WorkFlow logosu, "Fabrika personel takip sistemi" alt yazısı, e-posta, şifre, şifreyi göster/gizle, Giriş Yap butonu, Hesap oluştur bağlantısı (ad soyad, görev, e-posta, şifre). Slogan: "Doğru İnsan, Doğru Bölüm, Daha Verimli Üretim." Oturum açık kalsın.
 

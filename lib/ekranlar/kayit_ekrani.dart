@@ -67,7 +67,7 @@ class _KayitEkraniState extends State<KayitEkrani> {
       appBar: AppBar(
         title: const Text('Hesap Oluştur'),
         backgroundColor: Renkler.arkaPlan,
-        foregroundColor: Renkler.lacivert,
+        foregroundColor: Renkler.petrol,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

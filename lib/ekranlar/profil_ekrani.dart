@@ -17,7 +17,7 @@ class ProfilEkrani extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil'),
-        backgroundColor: Renkler.lacivert,
+        backgroundColor: Renkler.petrol,
         foregroundColor: Colors.white,
       ),
       body: ListView(

@@ -21,10 +21,10 @@ class HareketZamanCizelgesi extends StatelessWidget {
     this.gunBasliklariGoster = true,
   });
 
-  // Hareket türüne göre renk: giriş yeşil, çıkış mavi, otomatik çıkış turuncu.
+  // Hareket türüne göre renk: giriş yeşil, çıkış kiremit, otomatik çıkış hardal.
   static Color turRengi(Hareket h) => switch (h.tur) {
     'giris' => Renkler.basari,
-    'cikis' => Renkler.mavi,
+    'cikis' => Renkler.hata,
     _ => Renkler.uyari,
   };
 
@@ -68,7 +68,7 @@ class _GunBasligi extends StatelessWidget {
         style: const TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.bold,
-          color: Renkler.lacivert,
+          color: Renkler.petrol,
         ),
       ),
     );
@@ -101,7 +101,7 @@ class _CizelgeSatiri extends StatelessWidget {
                 zaman != null ? saatYaz(zaman) : '...',
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Renkler.lacivert,
+                  color: Renkler.petrol,
                 ),
               ),
             ),

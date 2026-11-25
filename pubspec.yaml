@@ -101,3 +101,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # Yazı tipi: Rubik (Google Fonts, açık lisans; lisans: assets/fonts/OFL.txt).
+  # İnternetsiz de çalışsın diye dosyalar uygulamanın içine konur.
+  fonts:
+    - family: Rubik
+      fonts:
+        - asset: assets/fonts/Rubik-Regular.ttf
+        - asset: assets/fonts/Rubik-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Rubik-SemiBold.ttf
+          weight: 600

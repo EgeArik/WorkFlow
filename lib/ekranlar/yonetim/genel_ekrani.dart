@@ -53,7 +53,7 @@ class _GenelEkraniState extends State<GenelEkrani> {
                       child: _SayiKarti(
                         baslik: 'Toplam personel',
                         sayi: kullanicilar.length,
-                        renk: Renkler.mavi,
+                        renk: Renkler.petrol,
                         ikon: Icons.groups,
                       ),
                     ),
@@ -159,7 +159,7 @@ class _GenelEkraniState extends State<GenelEkrani> {
                       value: iceride == 0 ? 0 : sayi / iceride,
                       minHeight: 10,
                       backgroundColor: Renkler.arkaPlan,
-                      color: Renkler.mavi,
+                      color: Renkler.petrol,
                     ),
                   ),
                 ],
@@ -184,7 +184,7 @@ class _BolumBasligi extends StatelessWidget {
         style: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.bold,
-          color: Renkler.lacivert,
+          color: Renkler.petrol,
         ),
       ),
     );
