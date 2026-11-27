@@ -1,0 +1,133 @@
+<!-- ======================= 2.6 ÖNEMLİ KODLAR ======================= -->
+<section>
+  <h2><span class="n">2.6</span> Önemli Kodlar ve Çalışma Mantığı</h2>
+  <p>Bu bölümde uygulamanın kalbini oluşturan kodlar, gerçek proje dosyalarından alınarak gösteriliyor. Her kod penceresinin üstünde dosyanın adı ve satır numaraları yer alıyor. Kodlardaki <span style="color:#3E7A7E;font-style:italic">açıklama satırları</span> projenin içinde de aynen bulunuyor; kod yazılırken her önemli satırın ne işe yaradığı Türkçe olarak not edildi.</p>
+
+  <h3>2.6.1 Model Sınıfları</h3>
+  <p>Firestore'dan gelen veri ham bir “anahtar → değer” haritasıdır (<code>Map</code>). Ekranlarda <code>veri['adSoyad']</code> gibi metinlerle çalışmak hataya açıktır: bir harf yanlış yazılsa program bunu fark etmez. Bu yüzden her koleksiyon için bir <b>model sınıfı</b> yazıldı. Model, ham veriyi düzenli bir Dart nesnesine çevirir; artık <code>kullanici.adSoyad</code> yazılır ve yanlış bir ad yazıldığında program daha çalışmadan uyarır.</p>
+  <!--KOD lib/modeller/kullanici.dart | 8-51 | Kullanici model sınıfı ve Firestore belgesinden nesne üreten factory kurucusu-->
+  <p><b>factory</b> kurucu, hazır bir veriden (burada Firestore dokümanından) nesne üreten özel bir kurucudur. <code>??</code> işareti “soldaki değer boşsa sağdakini kullan” demektir; böylece eksik bir alan uygulamayı çökertmez. Sınıfın sonundaki <b>getter</b>'lar ise saklanmayan ama her seferinde hesaplanan özelliklerdir:</p>
+  <!--KOD lib/modeller/kullanici.dart | 1-6 | Otomatik çıkış süresi tek bir yerde tanımlı-->
+  <!--KOD lib/modeller/kullanici.dart | 53-67 | Kişinin rolünü ve içeride olup olmadığını hesaplayan getter'lar-->
+  <div class="kutu not"><div class="kb">İki farklı “içeride mi?” neden var?</div><p><code>icerideMi</code> veritabanındaki duruma bakar ve giriş/çıkış <b>kararı</b> bununla verilir. <code>suAnIcerideMi</code> ise ekranda <b>gösterilecek</b> durumdur: kişi veritabanında içeride görünse bile girişinin üzerinden 9 saat geçtiyse ekranlarda “Dışarıda” görünür. Bu ayrım 2.6.4 bölümünde anlatılan kuralın temelidir.</p></div>
+
+  <h3>2.6.2 Kayıt Olma ve Rol Menüsü</h3>
+  <p>Kayıt iki adımdan oluşur: önce Firebase Authentication'da hesap açılır, sonra Firestore'da o hesabın <code>uid</code>'si ile kullanıcı belgesi yazılır. İkinci adım başarısız olursa (örneğin tam o anda internet kesilirse) yarım hesap kalmaması için Authentication hesabı da silinir.</p>
+  <!--KOD lib/servisler/auth_servisi.dart | 24-63 | AuthServisi içindeki kayitOl fonksiyonu-->
+  <p>Giriş yapan kişinin rolüne göre alt menü oluşturulurken Dart'ın <b>koleksiyon içinde if</b> özelliği kullanıldı. Yönetim sekmesi listeye yalnızca kişi yöneticiyse eklenir. Rol Firestore'dan canlı dinlendiği için, konsoldan bir kişiye yönetici yetkisi verildiği anda o kişinin menüsünde Yönetim sekmesi belirir.</p>
+  <!--KOD lib/ekranlar/ana_iskelet.dart | 92-124 | Role göre alt menü sekmelerinin oluşturulması-->
+
+  <h3>2.6.3 QR Okutma: Giriş, Çıkış ve Geçiş Kararı</h3>
+  <p>Projenin en önemli kodu, bir QR okutulduğunda ne olacağına karar veren <code>HareketServisi.qrOkut</code> fonksiyonudur. Personel giriş mi çıkış mı yaptığını seçmez; sistem kişinin veritabanındaki <code>suAnkiBolumId</code> değerine bakarak karar verir. Kararın tamamı aşağıdaki akış şemasında görülüyor:</p>
+  <figure class="diyagram" id="g-akis">
+    <svg viewBox="0 0 720 690" font-size="10.5">
+      <defs><marker id="ok8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#0E4A4F"/></marker></defs>
+      <!-- transaction alanı -->
+      <rect x="40" y="232" width="660" height="446" rx="16" fill="#FBF1DC" stroke="#D99A2B" stroke-width="1.6" stroke-dasharray="7 5"/>
+      <text x="56" y="254" font-size="10.5" font-weight="600" fill="#A8741A">TRANSACTION · içindeki her şey ya birlikte olur ya hiç olmaz</text>
+      <g text-anchor="middle">
+        <!-- başlangıç -->
+        <rect x="230" y="10" width="160" height="36" rx="18" fill="#0E4A4F"/><text x="310" y="32" fill="#fff" font-weight="600">Kamera bir QR okudu</text>
+        <!-- d1 -->
+        <path d="M310 68 L410 103 L310 138 L210 103Z" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="310" y="100">“workflow:bolum:”</text><text x="310" y="114">ile mi başlıyor?</text>
+        <!-- d2 -->
+        <path d="M310 158 L410 190 L310 222 L210 190Z" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="310" y="187">Aynı QR son</text><text x="310" y="201">10 sn içinde mi?</text>
+        <!-- d3 -->
+        <path d="M310 266 L400 296 L310 326 L220 296Z" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="310" y="293">Bölüm</text><text x="310" y="307">veritabanında var mı?</text>
+        <!-- d4 -->
+        <path d="M310 346 L410 378 L310 410 L210 378Z" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="310" y="375">Girişin üzerinden</text><text x="310" y="389">9 saat geçti mi?</text>
+        <!-- d5 -->
+        <path d="M310 432 L420 466 L310 500 L200 466Z" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="310" y="462">Bölüm pasif ve kişi</text><text x="310" y="476">o bölümde değil mi?</text>
+        <!-- d6 -->
+        <path d="M310 520 L410 552 L310 584 L210 552Z" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.8"/><text x="310" y="549" font-weight="600">Kişi şu an</text><text x="310" y="563" font-weight="600">hangi bölümde?</text>
+        <!-- sonuçlar -->
+        <rect x="60" y="616" width="170" height="50" rx="10" fill="#2E7D4F"/><text x="145" y="637" fill="#fff" font-weight="600">DURUM A · GİRİŞ</text><text x="145" y="654" fill="#DDEEE3" font-size="9.5">hareket: giris</text>
+        <rect x="245" y="616" width="170" height="50" rx="10" fill="#0E4A4F"/><text x="330" y="637" fill="#fff" font-weight="600">DURUM B · ÇIKIŞ</text><text x="330" y="654" fill="#DCE7E4" font-size="9.5">hareket: cikis</text>
+        <rect x="430" y="616" width="255" height="50" rx="10" fill="#D99A2B"/><text x="557" y="637" fill="#1E2A2B" font-weight="600">DURUM C · GEÇİŞ</text><text x="557" y="654" fill="#1E2A2B" font-size="9.5">eskiye otomatik_cikis + yeniye giris</text>
+        <!-- yan kutular -->
+        <rect x="470" y="85" width="225" height="36" rx="9" fill="#F5DFD8" stroke="#B4472F"/><text x="582" y="107" fill="#B4472F" font-weight="600">Kırmızı ekran: “Geçersiz QR”</text>
+        <rect x="470" y="172" width="225" height="36" rx="9" fill="#F3E2BF" stroke="#C98A1B"/><text x="582" y="194" fill="#A8741A" font-weight="600">Turuncu: “az önce okutuldu”</text>
+        <rect x="470" y="278" width="225" height="36" rx="9" fill="#F5DFD8" stroke="#B4472F"/><text x="582" y="300" fill="#B4472F" font-weight="600">Kırmızı: “Böyle bir bölüm yok”</text>
+        <rect x="470" y="352" width="225" height="52" rx="9" fill="#FFFCF6" stroke="#0E4A4F"/><text x="582" y="372">Eski girişi “giriş + 9 saat”</text><text x="582" y="386">zamanlı otomatik çıkışla kapat,</text><text x="582" y="399" font-weight="600">kişiyi dışarıda say</text>
+        <rect x="470" y="448" width="225" height="36" rx="9" fill="#F5DFD8" stroke="#B4472F"/><text x="582" y="470" fill="#B4472F" font-weight="600">Kırmızı: “Bölüm şu an pasif”</text>
+      </g>
+      <g stroke="#0E4A4F" stroke-width="1.4" fill="none" marker-end="url(#ok8)">
+        <path d="M310 46 V66"/><path d="M310 138 V156"/><path d="M310 222 V264"/><path d="M310 326 V344"/><path d="M310 410 V430"/><path d="M310 500 V518"/>
+        <path d="M410 103 H468"/><path d="M410 190 H468"/><path d="M400 296 H468"/><path d="M410 378 H468"/><path d="M420 466 H468"/>
+        <path d="M582 404 V420 H310"/>
+        <path d="M220 552 H145 V614"/><path d="M310 584 L330 614"/><path d="M400 552 H557 V614"/>
+      </g>
+      <g font-size="9.5" fill="#6E6B60">
+        <text x="420" y="97">hayır</text><text x="318" y="152">evet</text><text x="420" y="184">evet</text><text x="318" y="242">hayır</text>
+        <text x="410" y="290">hayır</text><text x="318" y="340">evet</text><text x="420" y="372">evet</text><text x="318" y="424">hayır</text>
+        <text x="430" y="460">evet</text><text x="318" y="514">hayır</text>
+        <text x="150" y="546">hiçbirinde (null)</text><text x="330" y="600">aynı bölümde</text><text x="448" y="546">başka bölümde</text>
+      </g>
+    </svg>
+    <figcaption>QR okutulduğunda giriş, çıkış veya geçiş kararının akış şeması</figcaption>
+  </figure>
+
+  <p>Okutma, QR Tara ekranında kamera bir kod gördüğü anda başlar. Ekran sonucu bekler, telefonu titretir ve tam ekran sonuç sayfasını açar:</p>
+  <!--KOD lib/ekranlar/qr_tara_ekrani.dart | 70-105 | Kamera QR gördüğünde çalışan _qrBulundu fonksiyonu-->
+  <p>Asıl karar <code>qrOkut</code> fonksiyonunda verilir. Önce QR'ın bu uygulamaya ait olup olmadığı ve aynı kodun az önce okutulup okutulmadığı kontrol edilir:</p>
+  <!--KOD lib/servisler/hareket_servisi.dart | 42-68 | QR içeriğinin ve çift okutmanın kontrolü-->
+  <p>Ardından bir <b>transaction</b> başlar. Transaction içindeki okuma ve yazmaların hepsi tek bir bütün olarak çalışır: ya hepsi başarılı olur ya da hiçbiri kaydedilmez. Örneğin geçişte “eski bölümden çıkış” yazılıp “yeni bölüme giriş” yazılamazsa veriler tutarsız kalırdı; transaction bunu imkânsız kılar. Aynı anda başka bir telefon aynı veriyi değiştirirse Firestore işlemi otomatik olarak baştan dener.</p>
+  <!--KOD lib/servisler/hareket_servisi.dart | 70-122 | Transaction'ın başı: bölüm kontrolü, 9 saat kuralı ve pasif bölüm kontrolü-->
+  <!--KOD lib/servisler/hareket_servisi.dart | 124-172 | Üç durumun (giriş, çıkış, geçiş) kodlanması-->
+  <div class="kutu kavram"><div class="kb">Saat neden telefondan alınmıyor?</div><p>Kayıtlardaki zaman <code>FieldValue.serverTimestamp()</code> ile yazılır. Bu, “zamanı sen değil, sunucu yazsın” demektir. Personel telefonunun saatini geri alsa bile kayıt gerçek saatle yazılır. Güvenlik kuralı da zamanın sunucu saatine eşit olmasını şart koşar (bkz. 2.5.4).</p></div>
+
+  <h3>2.6.4 Unutulan Çıkış: 9 Saat Kuralı</h3>
+  <p>Personel bazen akşam çıkış okutmayı unutup eve gidebilir. Bu kişi ertesi sabaha kadar “içeride” görünmemelidir. Bunun için şu kural konuldu: <b>girişin üzerinden 9 saat geçince kişi otomatik olarak çıkmış sayılır ve çıkış kaydı tam “giriş + 9 saat” zamanıyla yazılır.</b></p>
+  <figure class="diyagram" id="g-dokuz">
+    <svg viewBox="0 0 720 220">
+      <g font-size="10.5">
+        <path d="M40 110 H690" stroke="#C9BFA9" stroke-width="2"/>
+        <g fill="#6E6B60" text-anchor="middle" font-size="9.5">
+          <text x="60" y="130">08:00</text><text x="160" y="130">10:00</text><text x="260" y="130">12:00</text><text x="360" y="130">14:00</text><text x="460" y="130">16:00</text><text x="510" y="130">17:00</text><text x="610" y="130">19:00</text>
+        </g>
+        <rect x="60" y="96" width="450" height="28" rx="6" fill="#DDEEE3" opacity="0.9"/>
+        <rect x="60" y="96" width="450" height="5" rx="2" fill="#2E7D4F"/>
+        <text x="285" y="115" text-anchor="middle" fill="#2E7D4F" font-weight="600">içeride (9 saat)</text>
+        <circle cx="60" cy="110" r="8" fill="#2E7D4F"/><text x="60" y="80" text-anchor="middle" fill="#2E7D4F" font-weight="600">Giriş</text><text x="60" y="66" text-anchor="middle" fill="#6E6B60" font-size="9.5">Montaj Hattı</text>
+        <path d="M510 40 V180" stroke="#B4472F" stroke-width="2" stroke-dasharray="5 4"/>
+        <circle cx="510" cy="110" r="8" fill="#C98A1B"/>
+        <text x="510" y="30" text-anchor="middle" fill="#B4472F" font-weight="600">giriş + 9 saat</text>
+        <rect x="530" y="54" width="180" height="36" rx="8" fill="#F3E2BF"/><text x="540" y="70" fill="#1E2A2B" font-size="9.5">Yönetici ekranları kişiyi</text><text x="540" y="83" font-size="9.5" font-weight="600">hemen “Dışarıda” gösterir</text>
+        <rect x="530" y="146" width="180" height="62" rx="8" fill="#FFFCF6" stroke="#E2D9C6"/><text x="540" y="162" font-size="9.5" font-weight="600" fill="#0E4A4F">Otomatik çıkış kaydı yazılır:</text><text x="540" y="176" font-size="9">• uygulama açıksa 1 dk içinde</text><text x="540" y="189" font-size="9">• kapalıysa açılınca veya</text><text x="540" y="201" font-size="9">  sonraki QR okutmada</text>
+        <rect x="40" y="150" width="420" height="52" rx="8" fill="#DCE7E4"/><text x="52" y="170" font-size="9.5" fill="#0E4A4F" font-weight="600">Kayıt ne zaman yazılırsa yazılsın, zamanı her zaman 17:00 olur.</text><text x="52" y="188" font-size="9.5" fill="#1E2A2B">Böylece ertesi gün açılsa bile çalışma süresi 9 saat olarak hesaplanır.</text>
+      </g>
+    </svg>
+    <figcaption>9 saat kuralının zaman çizelgesi (08:00 girişi örneği)</figcaption>
+  </figure>
+  <p>Sunucu olmadığı için bu kaydı kişinin kendi telefonu yazar. Uygulama açıldığında ve açık kaldığı sürece her dakika küçük bir kontrol çalışır. Kontrol internete çıkmaz; sadece telefondaki giriş zamanına bakar, süre dolmamışsa hiçbir şey yapmaz:</p>
+  <!--KOD lib/ekranlar/ana_iskelet.dart | 43-86 | Uygulama açıkken her dakika çalışan kontrol (Timer.periodic)-->
+  <!--KOD lib/servisler/hareket_servisi.dart | 192-224 | Süresi dolan girişi kapatan eskiAcikKaydiKapat fonksiyonu-->
+  <p>Burada bir sorun vardı: güvenlik kuralları kayıt zamanının sunucu saatine eşit olmasını istiyordu, oysa otomatik çıkışın zamanı geçmişteki bir an (giriş + 9 saat). Bunun için kurallara tek ve sıkı şartlı bir istisna eklendi: geçmiş zamanlı kayıt sadece <b>otomatik çıkış</b> türünde, kişinin <b>gerçekten içinde göründüğü bölüm</b> için ve <b>giriş ile giriş + 9 saat arasındaki</b> bir zamana yazılabilir.</p>
+  <!--KOD firestore.rules | 66-82 | Geçmiş zamanlı otomatik çıkışa izin veren sıkı kural-->
+
+  <h3>2.6.5 Çalışma Süresi Hesabı</h3>
+  <p>Yönetim &gt; Hareketler ekranında seçilen personelin seçilen dönemdeki toplam çalışma süresi gösterilir. Süre, her <b>giriş</b> ile ondan sonraki <b>çıkış</b> arasındaki sürelerin toplamıdır. Bölüm değiştirmek süreyi bölmez; çünkü eski bölümden çıkış ile yeni bölüme giriş aynı anda yazılır.</p>
+  <figure class="diyagram" id="g-sure">
+    <svg viewBox="0 0 720 150">
+      <g font-size="10">
+        <path d="M40 70 H690" stroke="#C9BFA9" stroke-width="2"/>
+        <rect x="60" y="56" width="150" height="28" rx="6" fill="#0E4A4F"/><text x="135" y="74" text-anchor="middle" fill="#fff" font-weight="600">Montaj · 2 sa 30 dk</text>
+        <rect x="210" y="56" width="90" height="28" rx="6" fill="#3E7A7E"/><text x="255" y="74" text-anchor="middle" fill="#fff" font-weight="600">Depo · 1 sa 30</text>
+        <rect x="300" y="56" width="60" height="28" rx="6" fill="#ECE7DB" stroke="#C9BFA9" stroke-dasharray="4 3"/><text x="330" y="74" text-anchor="middle" fill="#6E6B60">mola</text>
+        <rect x="360" y="56" width="240" height="28" rx="6" fill="#0E4A4F"/><text x="480" y="74" text-anchor="middle" fill="#fff" font-weight="600">Montaj · 4 sa</text>
+        <g text-anchor="middle" fill="#6E6B60" font-size="9.5"><text x="60" y="104">08:00</text><text x="210" y="104">10:30</text><text x="300" y="104">12:00</text><text x="360" y="104">13:00</text><text x="600" y="104">17:00</text></g>
+        <g text-anchor="middle" font-size="9" font-weight="600"><text x="60" y="44" fill="#2E7D4F">giriş</text><text x="210" y="32" fill="#A8741A">geçiş</text><text x="210" y="44" fill="#A8741A" font-size="8.5">(çıkış + giriş)</text><text x="300" y="44" fill="#B4472F">çıkış</text><text x="360" y="44" fill="#2E7D4F">giriş</text><text x="600" y="44" fill="#B4472F">çıkış</text></g>
+        <rect x="200" y="118" width="320" height="26" rx="13" fill="#D99A2B"/><text x="360" y="135" text-anchor="middle" font-weight="600" fill="#1E2A2B" font-size="11">Toplam: 2 sa 30 + 1 sa 30 + 4 sa = 8 sa</text>
+      </g>
+    </svg>
+    <figcaption>Giriş–çıkış çiftlerinden toplam çalışma süresinin hesaplanması</figcaption>
+  </figure>
+  <!--KOD lib/yardimcilar/calisma_suresi.dart | 8-42 | Toplam çalışma süresini hesaplayan fonksiyon-->
+  <p>Fonksiyon önce kayıtları eskiden yeniye sıralar. Aynı saniyedeki kayıtlarda (geçiş) önce çıkışın gelmesi sağlanır; yoksa hesap karışırdı. Sonra listeyi baştan sona dolaşır: bir giriş görünce zamanını aklında tutar, ardından gelen ilk çıkışta aradaki farkı toplama ekler. Kişi hâlâ içerideyse son giriş şu ana kadar sayılır. Bu fonksiyon testler sırasında bulunan bir hatadan sonra düzeltildi (bkz. 3.2).</p>
+
+  <h3>2.6.6 QR ve PDF Üretme</h3>
+  <p>Yönetici yeni bir bölüm eklediğinde Firestore bölüme rastgele ve benzersiz bir kimlik verir. QR kodun içine bu kimlik <code>workflow:bolum:&lt;kimlik&gt;</code> biçiminde yazılır. Bölümün adı yerine kimliğin kullanılmasının nedeni, bölümün adı değişse bile kapıdaki QR'ın geçerli kalmasıdır. Baştaki <code>workflow:bolum:</code> öneki sayesinde de başka bir QR (örneğin bir ürün barkodu) okutulduğunda uygulama bunu hemen “Geçersiz QR” olarak ayırt eder.</p>
+  <!--KOD lib/servisler/bolum_servisi.dart | 17-23 | Yeni bölüm ekleyen fonksiyon-->
+  <!--KOD lib/servisler/pdf_servisi.dart | 11-53 | Bölüm QR kodunu A4 PDF'e çeviren PdfServisi (ilk kısım)-->
+  <p>QR kodu PDF'e <b>resim olarak değil, vektör olarak</b> çizilir; bu yüzden ne kadar büyütülürse büyütülsün bulanıklaşmaz ve uzaktan da okunur. PDF'in varsayılan yazı tipinde Türkçe harfler olmadığı için ç, ğ, ı, ş, ö, ü harflerini içeren <i>Noto Sans</i> yazı tipi PDF'e gömülür. Kaydetme ve yazdırma Android'in kendi yazdırma ekranıyla yapıldığı için uygulama depolama izni istemez.</p>
+</section>

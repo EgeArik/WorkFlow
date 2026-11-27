@@ -1,0 +1,311 @@
+<!-- ======================= 2.3 SİSTEM TASARIMI ======================= -->
+<section>
+  <h2><span class="n">2.3</span> Sistem Tasarımı</h2>
+  <p>Kodlamaya başlamadan önce sistemin nasıl kurulacağı diyagramlarla modellendi. Varlık ilişki şeması verilerin neler olduğunu ve birbirine nasıl bağlandığını, sınıf diyagramı koddaki sınıfları, veri akış diyagramı verinin sistemde nasıl dolaştığını, arayüz taslakları da ekranların ilk hâlini gösterir.</p>
+
+  <h3>2.3.1 Varlık İlişki Şeması</h3>
+  <p>Sistemde üç varlık vardır: <b>Kullanıcı</b>, <b>Bölüm</b> ve <b>Hareket</b>. Dikdörtgenler varlıkları, elipsler öz nitelikleri, baklava dilimleri ilişkileri gösterir. Altı çizili öz nitelik o varlığın <b>birincil anahtarıdır</b> (her kaydı diğerlerinden ayıran benzersiz değer).</p>
+  <figure class="diyagram" id="g-vis">
+    <svg viewBox="0 0 720 470">
+      <g stroke="#6E6B60" stroke-width="1.2">
+        <!-- Kullanıcı öz nitelikleri -->
+        <path d="M110 215 L55 140M135 205 L120 95M185 205 L215 95M95 230 L40 230M100 238 L55 305"/>
+        <!-- Bölüm öz nitelikleri -->
+        <path d="M545 205 L505 100M590 205 L610 100M630 220 L680 160"/>
+        <!-- Hareket öz nitelikleri -->
+        <path d="M320 410 L245 440M345 412 L330 452M380 412 L420 452M400 405 L500 440"/>
+        <!-- ilişki öz niteliği -->
+        <path d="M360 200 L360 150"/>
+      </g>
+      <g stroke="#0E4A4F" stroke-width="1.8" fill="none">
+        <path d="M220 222 H310"/><path d="M410 222 H510"/>
+        <path d="M170 240 L235 300"/><path d="M265 330 L320 380"/>
+        <path d="M570 240 L495 300"/><path d="M465 330 L410 380"/>
+      </g>
+      <!-- varlıklar -->
+      <g font-size="13" font-weight="600" text-anchor="middle">
+        <rect x="100" y="203" width="120" height="38" rx="4" fill="#0E4A4F"/><text x="160" y="227" fill="#fff">KULLANICI</text>
+        <rect x="510" y="203" width="120" height="38" rx="4" fill="#0E4A4F"/><text x="570" y="227" fill="#fff">BÖLÜM</text>
+        <rect x="300" y="378" width="120" height="38" rx="4" fill="#0E4A4F"/><text x="360" y="402" fill="#fff">HAREKET</text>
+      </g>
+      <!-- ilişkiler -->
+      <g font-size="10.5" text-anchor="middle" fill="#1E2A2B">
+        <path d="M360 192 L410 222 L360 252 L310 222Z" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.6"/><text x="360" y="220">şu an</text><text x="360" y="232">içindedir</text>
+        <path d="M250 290 L292 315 L250 340 L208 315Z" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.6"/><text x="250" y="319">okutur</text>
+        <path d="M480 290 L522 315 L480 340 L438 315Z" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.6"/><text x="480" y="314">kaydedilir</text>
+      </g>
+      <!-- kardinaliteler -->
+      <g font-size="12" font-weight="600" fill="#B4472F">
+        <text x="232" y="214">Çok</text><text x="488" y="214">1</text>
+        <text x="180" y="270">1</text><text x="302" y="372">Çok</text>
+        <text x="548" y="270">1</text><text x="412" y="372">Çok</text>
+      </g>
+      <!-- öz nitelik elipsleri -->
+      <g font-size="10.5" text-anchor="middle" fill="#1E2A2B">
+        <g fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.2">
+          <ellipse cx="50" cy="132" rx="36" ry="15"/><ellipse cx="118" cy="82" rx="44" ry="15"/><ellipse cx="222" cy="82" rx="40" ry="15"/>
+          <ellipse cx="40" cy="232" rx="34" ry="15"/><ellipse cx="55" cy="312" rx="30" ry="15"/>
+          <ellipse cx="500" cy="88" rx="44" ry="15"/><ellipse cx="612" cy="88" rx="30" ry="15"/><ellipse cx="680" cy="150" rx="32" ry="15"/>
+          <ellipse cx="236" cy="445" rx="46" ry="15"/><ellipse cx="330" cy="455" rx="26" ry="13"/><ellipse cx="425" cy="455" rx="34" ry="13"/><ellipse cx="510" cy="440" rx="38" ry="15"/>
+          <ellipse cx="360" cy="135" rx="48" ry="15" stroke-dasharray="0"/>
+        </g>
+        <text x="50" y="136" text-decoration="underline" font-weight="600">uid</text><text x="118" y="86">adSoyad</text><text x="222" y="86">eposta</text>
+        <text x="40" y="236">gorev</text><text x="55" y="316">rol</text>
+        <text x="500" y="92" text-decoration="underline" font-weight="600">bolumId</text><text x="612" y="92">ad</text><text x="680" y="154">aktif</text>
+        <text x="236" y="449" text-decoration="underline" font-weight="600">hareketId</text><text x="330" y="459">tur</text><text x="425" y="459">zaman</text><text x="510" y="444">kullaniciAdi</text>
+        <text x="360" y="139">girisZamani</text>
+      </g>
+      <text x="700" y="455" text-anchor="end" font-size="9.5" fill="#6E6B60">1 = bir · Çok = birden fazla</text>
+    </svg>
+    <figcaption>WorkFlow varlık ilişki şeması</figcaption>
+  </figure>
+  <ul>
+    <li><b>Kullanıcı – okutur – Hareket (1–Çok):</b> Bir kullanıcının birçok hareket kaydı olur; her hareket tek bir kullanıcıya aittir.</li>
+    <li><b>Bölüm – kaydedilir – Hareket (1–Çok):</b> Bir bölümde birçok hareket kaydedilir; her hareket tek bir bölüme aittir.</li>
+    <li><b>Kullanıcı – şu an içindedir – Bölüm (Çok–1):</b> Bir kullanıcı aynı anda en fazla bir bölümde bulunur; bir bölümde birçok kullanıcı olabilir. Bu ilişkinin <i>girisZamani</i> öz niteliği, kişinin bölüme ne zaman girdiğini tutar.</li>
+  </ul>
+
+  <h3>2.3.2 Sınıf Diyagramı</h3>
+  <p>Sınıf diyagramı, koddaki sınıfları, özelliklerini (alanlarını) ve metotlarını gösterir. Alt sırada veriyi temsil eden <b>model</b> sınıfları, üst sırada Firebase ile konuşan <b>servis</b> sınıfları vardır. Kesikli oklar “kullanır / üretir” bağlantısını gösterir.</p>
+  <figure class="diyagram" id="g-sinif">
+    <svg viewBox="0 0 720 520" font-size="9.5">
+      <defs><marker id="ok2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10" fill="none" stroke="#6E6B60" stroke-width="1.5"/></marker></defs>
+      <!-- Servisler -->
+      <g>
+        <rect x="8" y="10" width="134" height="150" rx="6" fill="#FFFCF6" stroke="#D99A2B" stroke-width="1.5"/><rect x="8" y="10" width="134" height="24" rx="6" fill="#D99A2B"/>
+        <text x="75" y="27" text-anchor="middle" font-weight="600" font-size="11" fill="#1E2A2B">AuthServisi</text>
+        <text x="14" y="50" fill="#6E6B60">- _auth: FirebaseAuth</text><text x="14" y="63" fill="#6E6B60">- _db: FirebaseFirestore</text>
+        <path d="M8 70 H142" stroke="#E2D9C6"/>
+        <text x="14" y="86">+ oturumDegisiklikleri</text><text x="14" y="100">+ girisYap()</text><text x="14" y="114">+ kayitOl()</text><text x="14" y="128">+ cikisYap()</text><text x="14" y="142">+ sifreDegistir()</text>
+      </g>
+      <g>
+        <rect x="150" y="10" width="138" height="150" rx="6" fill="#FFFCF6" stroke="#D99A2B" stroke-width="1.5"/><rect x="150" y="10" width="138" height="24" rx="6" fill="#D99A2B"/>
+        <text x="219" y="27" text-anchor="middle" font-weight="600" font-size="11" fill="#1E2A2B">VeriServisi</text>
+        <text x="156" y="50" fill="#6E6B60">- _db: FirebaseFirestore</text><path d="M150 58 H288" stroke="#E2D9C6"/>
+        <text x="156" y="74">+ kullaniciAkisi(uid)</text><text x="156" y="88">+ bugunkuHareketlerAkisi()</text><text x="156" y="102">+ hareketlerAkisi(uid, bas)</text><text x="156" y="116">+ tumKullanicilarAkisi()</text><text x="156" y="130">+ sonHareketlerAkisi()</text>
+      </g>
+      <g>
+        <rect x="296" y="10" width="138" height="150" rx="6" fill="#FFFCF6" stroke="#D99A2B" stroke-width="2.4"/><rect x="296" y="10" width="138" height="24" rx="6" fill="#D99A2B"/>
+        <text x="365" y="27" text-anchor="middle" font-weight="600" font-size="11" fill="#1E2A2B">HareketServisi</text>
+        <text x="302" y="50" fill="#6E6B60">- _db: FirebaseFirestore</text><text x="302" y="63" fill="#6E6B60">- _sonBolumId: String?</text><text x="302" y="76" fill="#6E6B60">- _sonOkutmaZamani</text>
+        <path d="M296 84 H434" stroke="#E2D9C6"/>
+        <text x="302" y="100" font-weight="600">+ qrOkut(qrMetni, uid)</text><text x="302" y="114">+ eskiAcikKaydiKapat(k)</text>
+      </g>
+      <g>
+        <rect x="442" y="10" width="134" height="150" rx="6" fill="#FFFCF6" stroke="#D99A2B" stroke-width="1.5"/><rect x="442" y="10" width="134" height="24" rx="6" fill="#D99A2B"/>
+        <text x="509" y="27" text-anchor="middle" font-weight="600" font-size="11" fill="#1E2A2B">BolumServisi</text>
+        <text x="448" y="50" fill="#6E6B60">- _bolumler: Collection</text><path d="M442 58 H576" stroke="#E2D9C6"/>
+        <text x="448" y="74">+ bolumlerAkisi()</text><text x="448" y="88">+ bolumEkle(ad)</text><text x="448" y="102">+ aktiflikDegistir(b, aktif)</text>
+      </g>
+      <g>
+        <rect x="584" y="10" width="128" height="150" rx="6" fill="#FFFCF6" stroke="#D99A2B" stroke-width="1.5"/><rect x="584" y="10" width="128" height="24" rx="6" fill="#D99A2B"/>
+        <text x="648" y="27" text-anchor="middle" font-weight="600" font-size="11" fill="#1E2A2B">PdfServisi</text>
+        <path d="M584 44 H712" stroke="#E2D9C6"/>
+        <text x="590" y="60">+ qrPdfIndir(bolum)</text><text x="590" y="74" fill="#6E6B60">- _pdfOlustur(bolum)</text>
+      </g>
+      <!-- Modeller -->
+      <g>
+        <rect x="20" y="290" width="210" height="222" rx="6" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><rect x="20" y="290" width="210" height="26" rx="6" fill="#0E4A4F"/>
+        <text x="125" y="308" text-anchor="middle" font-weight="600" font-size="11.5" fill="#fff">Kullanici</text>
+        <text x="28" y="333">+ uid: String</text><text x="28" y="346">+ adSoyad: String</text><text x="28" y="359">+ eposta: String</text><text x="28" y="372">+ gorev: String</text><text x="28" y="385">+ rol: String</text><text x="28" y="398">+ suAnkiBolumId: String?</text><text x="28" y="411">+ suAnkiBolumAdi: String?</text><text x="28" y="424">+ girisZamani: DateTime?</text>
+        <path d="M20 432 H230" stroke="#E2D9C6"/>
+        <text x="28" y="447">+ Kullanici.firestoredan(dok)</text><text x="28" y="460">+ yoneticiMi / icerideMi: bool</text><text x="28" y="473">+ suresiDolduMu: bool</text><text x="28" y="486">+ suAnIcerideMi: bool</text><text x="28" y="499">+ basHarfler: String</text>
+      </g>
+      <g>
+        <rect x="255" y="290" width="200" height="130" rx="6" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><rect x="255" y="290" width="200" height="26" rx="6" fill="#0E4A4F"/>
+        <text x="355" y="308" text-anchor="middle" font-weight="600" font-size="11.5" fill="#fff">Bolum</text>
+        <text x="263" y="333">+ id: String</text><text x="263" y="346">+ ad: String</text><text x="263" y="359">+ aktif: bool</text>
+        <path d="M255 368 H455" stroke="#E2D9C6"/>
+        <text x="263" y="384">+ Bolum.firestoredan(dok)</text><text x="263" y="397">+ qrIcerigi: String</text>
+        <text x="263" y="410" fill="#6E6B60">  // "workflow:bolum:&lt;id&gt;"</text>
+      </g>
+      <g>
+        <rect x="480" y="290" width="220" height="190" rx="6" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><rect x="480" y="290" width="220" height="26" rx="6" fill="#0E4A4F"/>
+        <text x="590" y="308" text-anchor="middle" font-weight="600" font-size="11.5" fill="#fff">Hareket</text>
+        <text x="488" y="333">+ id: String</text><text x="488" y="346">+ kullaniciId: String</text><text x="488" y="359">+ kullaniciAdi: String</text><text x="488" y="372">+ bolumId: String</text><text x="488" y="385">+ bolumAdi: String</text><text x="488" y="398">+ tur: String</text><text x="488" y="411">+ zaman: DateTime?</text>
+        <path d="M480 420 H700" stroke="#E2D9C6"/>
+        <text x="488" y="436">+ Hareket.firestoredan(dok)</text><text x="488" y="449">+ girisMi: bool</text><text x="488" y="462">+ turEtiketi: String</text>
+      </g>
+      <!-- bağlantılar -->
+      <g stroke="#6E6B60" stroke-width="1.2" stroke-dasharray="5 4" fill="none" marker-end="url(#ok2)">
+        <path d="M75 160 L110 288"/><path d="M200 160 L140 288"/><path d="M250 160 L560 288"/>
+        <path d="M340 160 L190 288"/><path d="M365 160 L355 288"/><path d="M400 160 L585 288"/>
+        <path d="M500 160 L380 288"/><path d="M648 160 L430 300"/>
+      </g>
+      <text x="360" y="240" text-anchor="middle" font-size="10" fill="#6E6B60">servisler Firestore'dan gelen dokümanları model nesnelerine çevirir</text>
+    </svg>
+    <figcaption>Model ve servis sınıflarının sınıf diyagramı</figcaption>
+  </figure>
+
+  <h3>2.3.3 Veri Akış Diyagramı</h3>
+  <p>Veri akış diyagramı, verinin dış varlıklardan (kullanıcılar) işlemlere, işlemlerden veri depolarına nasıl aktığını gösterir. Kareler <b>dış varlıkları</b>, yuvarlak köşeli kutular <b>işlemleri</b>, sağı açık dikdörtgenler <b>veri depolarını</b> (Firestore koleksiyonlarını) temsil eder.</p>
+  <figure class="diyagram" id="g-vad">
+    <svg viewBox="0 0 800 450" font-size="10">
+      <defs><marker id="ok3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#0E4A4F"/></marker></defs>
+      <!-- dış varlıklar -->
+      <rect x="10" y="200" width="100" height="50" fill="#0E4A4F"/><text x="60" y="230" text-anchor="middle" fill="#fff" font-weight="600" font-size="12">PERSONEL</text>
+      <rect x="690" y="200" width="100" height="50" fill="#D99A2B"/><text x="740" y="230" text-anchor="middle" fill="#1E2A2B" font-weight="600" font-size="12">YÖNETİCİ</text>
+      <!-- işlemler -->
+      <g font-size="10.5">
+        <rect x="165" y="40" width="135" height="58" rx="12" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.6"/><path d="M165 60 H300" stroke="#0E4A4F"/><text x="175" y="55" font-weight="600" fill="#0E4A4F">1</text><text x="232" y="83" text-anchor="middle">Kayıt ol / Giriş yap</text>
+        <rect x="165" y="196" width="135" height="58" rx="12" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.8"/><path d="M165 216 H300" stroke="#D99A2B"/><text x="175" y="211" font-weight="600" fill="#A8741A">2</text><text x="232" y="239" text-anchor="middle" font-weight="600">QR okut</text>
+        <rect x="165" y="352" width="135" height="58" rx="12" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.6"/><path d="M165 372 H300" stroke="#0E4A4F"/><text x="175" y="367" font-weight="600" fill="#0E4A4F">3</text><text x="232" y="395" text-anchor="middle">Durum ve geçmiş</text>
+        <rect x="510" y="110" width="135" height="58" rx="12" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.6"/><path d="M510 130 H645" stroke="#0E4A4F"/><text x="520" y="125" font-weight="600" fill="#0E4A4F">4</text><text x="577" y="153" text-anchor="middle">Bölüm işlemleri</text>
+        <rect x="510" y="300" width="135" height="58" rx="12" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.6"/><path d="M510 320 H645" stroke="#0E4A4F"/><text x="520" y="315" font-weight="600" fill="#0E4A4F">5</text><text x="577" y="340" text-anchor="middle">Personel ve hareket</text><text x="577" y="352" text-anchor="middle">izleme</text>
+      </g>
+      <!-- veri depoları -->
+      <g font-size="10.5">
+        <path d="M350 30 H470 M350 30 V56 H470" fill="#fff" stroke="#3E7A7E" stroke-width="1.6"/><rect x="350" y="30" width="26" height="26" fill="#DCE7E4" stroke="#3E7A7E"/><text x="363" y="47" text-anchor="middle" font-weight="600">A</text><text x="384" y="47">Firebase Auth</text>
+        <path d="M350 130 H470 M350 130 V156 H470" fill="none" stroke="#3E7A7E" stroke-width="1.6"/><rect x="350" y="130" width="26" height="26" fill="#DCE7E4" stroke="#3E7A7E"/><text x="363" y="147" text-anchor="middle" font-weight="600">D1</text><text x="384" y="147">kullanicilar</text>
+        <path d="M350 245 H470 M350 245 V271 H470" fill="none" stroke="#3E7A7E" stroke-width="1.6"/><rect x="350" y="245" width="26" height="26" fill="#DCE7E4" stroke="#3E7A7E"/><text x="363" y="262" text-anchor="middle" font-weight="600">D2</text><text x="384" y="262">bolumler</text>
+        <path d="M350 345 H470 M350 345 V371 H470" fill="none" stroke="#3E7A7E" stroke-width="1.6"/><rect x="350" y="345" width="26" height="26" fill="#DCE7E4" stroke="#3E7A7E"/><text x="363" y="362" text-anchor="middle" font-weight="600">D3</text><text x="384" y="362">hareketler</text>
+      </g>
+      <!-- akışlar -->
+      <g stroke="#0E4A4F" stroke-width="1.3" fill="none" marker-end="url(#ok3)">
+        <path d="M60 200 L60 70 L163 70"/>
+        <path d="M300 55 L348 44"/>
+        <path d="M300 85 L348 140"/>
+        <path d="M110 218 L163 218"/>
+        <path d="M163 238 L112 238"/>
+        <path d="M348 258 L302 232"/>
+        <path d="M300 222 L348 150"/>
+        <path d="M300 245 L348 356"/>
+        <path d="M348 364 L302 382"/>
+        <path d="M163 390 L60 390 L60 252"/>
+        <path d="M740 200 L740 139 L647 139"/>
+        <path d="M508 139 L472 140" />
+        <path d="M508 150 L472 252"/>
+        <path d="M577 168 L577 190 L790 190 L790 200" stroke-dasharray="4 3"/>
+        <path d="M472 150 L508 310"/>
+        <path d="M472 358 L508 335"/>
+        <path d="M647 329 L740 329 L740 252"/>
+      </g>
+      <g font-size="9" fill="#6E6B60">
+        <text x="66" y="120">e-posta, şifre</text>
+        <text x="306" y="40">hesap</text><text x="300" y="118">kullanıcı belgesi</text>
+        <text x="116" y="212">QR içeriği</text><text x="116" y="252">sonuç ekranı</text>
+        <text x="305" y="270">aktif mi?</text><text x="300" y="185">şu anki bölüm</text><text x="298" y="310">hareket kaydı</text>
+        <text x="305" y="395">hareketler</text><text x="66" y="320">geçmiş, durum</text>
+        <text x="660" y="133">bölüm adı</text><text x="478" y="200">yeni bölüm</text><text x="684" y="184">QR PDF</text>
+        <text x="476" y="230" transform="rotate(0)">kişiler</text><text x="468" y="345">hareketler</text><text x="652" y="322">liste, süre</text>
+      </g>
+    </svg>
+    <figcaption>WorkFlow veri akış diyagramı</figcaption>
+  </figure>
+  <p>En önemli işlem <b>2 · QR okut</b> işlemidir: personelden gelen QR içeriğini alır, <b>bolumler</b> deposundan bölümün aktif olup olmadığına bakar, <b>kullanicilar</b> deposundaki “şu anki bölüm” bilgisini okuyup günceller, <b>hareketler</b> deposuna yeni kayıt ekler ve personele sonucu gösterir. Bu okuma ve yazmaların hepsi tek bir “transaction” içinde yapılır (bkz. 2.6.3).</p>
+
+  <h3>2.3.4 Veri Tabanı Tasarımı</h3>
+  <p>WorkFlow, ilişkisel (SQL) bir veritabanı yerine <b>Cloud Firestore</b> kullanır. Firestore bir <b>NoSQL</b> veritabanıdır: tablo yerine <b>koleksiyon</b>, satır yerine <b>doküman</b>, sütun yerine <b>alan</b> vardır. Bunu bir dosya dolabına benzetebiliriz: koleksiyon bir çekmece, doküman çekmecedeki bir kart, alanlar da kartın üzerindeki satırlardır.</p>
+  <figure class="diyagram" id="g-firestore-agac">
+    <svg viewBox="0 0 720 170">
+      <g font-size="11">
+        <rect x="10" y="60" width="120" height="46" rx="10" fill="#0E4A4F"/><text x="70" y="80" text-anchor="middle" fill="#fff" font-weight="600">Firestore</text><text x="70" y="96" text-anchor="middle" fill="#D6E4E3" font-size="9.5">(default) veritabanı</text>
+        <g fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.4">
+          <rect x="190" y="14" width="140" height="34" rx="8"/><rect x="190" y="66" width="140" height="34" rx="8"/><rect x="190" y="118" width="140" height="34" rx="8"/>
+        </g>
+        <text x="260" y="35" text-anchor="middle" font-weight="600">kullanicilar</text><text x="260" y="87" text-anchor="middle" font-weight="600">bolumler</text><text x="260" y="139" text-anchor="middle" font-weight="600">hareketler</text>
+        <g fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.2"><rect x="380" y="14" width="120" height="34" rx="8"/><rect x="380" y="66" width="120" height="34" rx="8"/><rect x="380" y="118" width="120" height="34" rx="8"/></g>
+        <text x="440" y="35" text-anchor="middle">{uid}</text><text x="440" y="87" text-anchor="middle">{bolumId}</text><text x="440" y="139" text-anchor="middle">{hareketId}</text>
+        <g font-size="9.5" fill="#6E6B60"><text x="520" y="28">adSoyad, eposta, gorev, rol,</text><text x="520" y="41">suAnkiBolumId, girisZamani…</text><text x="520" y="87">ad, aktif</text><text x="520" y="132">kullaniciId, bolumId, tur,</text><text x="520" y="145">zaman…</text></g>
+      </g>
+      <g stroke="#0E4A4F" stroke-width="1.3" fill="none"><path d="M130 83 C160 83 160 31 188 31M130 83 H188M130 83 C160 83 160 135 188 135"/><path d="M330 31 H378M330 83 H378M330 135 H378"/></g>
+      <g font-size="9" fill="#A8741A" font-weight="600"><text x="225" y="10">KOLEKSİYON</text><text x="404" y="10">DOKÜMAN</text><text x="540" y="10">ALANLAR</text></g>
+    </svg>
+    <figcaption>Firestore'daki koleksiyon, doküman ve alan yapısı</figcaption>
+  </figure>
+
+  <h4>kullanicilar / {uid}</h4>
+      <table style="margin-top:4px">
+        <tr><th>Alan</th><th>Tür</th><th>Açıklama</th></tr>
+        <tr><td><code>uid</code> <span class="rozet h">anahtar</span></td><td>string</td><td>Doküman adı; Firebase Auth'un verdiği kimlik</td></tr>
+        <tr><td><code>adSoyad</code></td><td>string</td><td>Kayıtta girilen ad soyad</td></tr>
+        <tr><td><code>eposta</code></td><td>string</td><td>Giriş e-postası (küçük harf)</td></tr>
+        <tr><td><code>gorev</code></td><td>string</td><td>Örn. “Montaj Operatörü”</td></tr>
+        <tr><td><code>rol</code></td><td>string</td><td>“personel” veya “yonetici”</td></tr>
+        <tr><td><code>suAnkiBolumId</code></td><td>string / null</td><td>İçinde bulunduğu bölüm; dışarıdaysa null</td></tr>
+        <tr><td><code>suAnkiBolumAdi</code></td><td>string / null</td><td>Bölüm adı (ekranda göstermek için)</td></tr>
+        <tr><td><code>girisZamani</code></td><td>timestamp / null</td><td>Bölüme giriş anı (sunucu saati)</td></tr>
+      </table>
+  <div class="iki-kolon">
+    <div><h4>bolumler / {bolumId}</h4>
+      <table style="margin-top:4px">
+        <tr><th>Alan</th><th>Tür</th><th>Açıklama</th></tr>
+        <tr><td><code>bolumId</code> <span class="rozet h">anahtar</span></td><td>string</td><td>Firestore'un ürettiği rastgele kimlik; QR'ın içinde bu yazar</td></tr>
+        <tr><td><code>ad</code></td><td>string</td><td>Örn. “Montaj Hattı”</td></tr>
+        <tr><td><code>aktif</code></td><td>bool</td><td>Pasif bölüme giriş yapılamaz</td></tr>
+      </table></div>
+    <div><h4>hareketler / {hareketId}</h4>
+      <table style="margin-top:4px">
+        <tr><th>Alan</th><th>Tür</th><th>Açıklama</th></tr>
+        <tr><td><code>kullaniciId</code></td><td>string</td><td>→ kullanicilar/{uid}</td></tr>
+        <tr><td><code>kullaniciAdi</code></td><td>string</td><td>Okutma anındaki ad (kopya)</td></tr>
+        <tr><td><code>bolumId</code></td><td>string</td><td>→ bolumler/{bolumId}</td></tr>
+        <tr><td><code>bolumAdi</code></td><td>string</td><td>Okutma anındaki bölüm adı (kopya)</td></tr>
+        <tr><td><code>tur</code></td><td>string</td><td>giris · cikis · otomatik_cikis</td></tr>
+        <tr><td><code>zaman</code></td><td>timestamp</td><td>Sunucu saati</td></tr>
+      </table></div>
+  </div>
+  <div class="kutu not"><div class="kb">Neden ad bilgileri kopyalandı?</div><p>SQL'de “JOIN” ile iki tablo birleştirilir; Firestore'da böyle bir birleştirme yoktur. Her hareket listelendiğinde kişinin ve bölümün adını ayrıca okumak yavaş ve pahalı olurdu. Bu yüzden <code>kullaniciAdi</code> ve <code>bolumAdi</code> hareket kaydına <b>okutma anında kopyalanır</b>. Bu yöntemin adı <b>denormalizasyondur</b> ve NoSQL veritabanlarında yaygındır. Bir yararı da şudur: bölümün adı sonradan değişse bile eski kayıtlar o günkü adıyla kalır.</p></div>
+
+  <h3>2.3.5 Arayüz Taslakları</h3>
+  <p>Kodlamaya başlamadan önce ekranların kaba taslakları çizildi. Taslaklarda renk ve ayrıntı yoktur; amaç her ekranda hangi bilginin nerede duracağına karar vermektir. Son tasarım (bkz. 2.7) bu taslaklar üzerine kuruldu.</p>
+  <figure id="g-taslak">
+    <div class="tel-sira dortlu">
+      <div class="tel-kutu">
+        <div class="tel" style="background:#fff;border-color:#9C9688;box-shadow:none">
+          <div style="background:#D8D4CB;padding:10px;font-size:9px;color:#555;flex:none">[LOGO] WorkFlow<br>Günaydın, Ad</div>
+          <div class="ic">
+            <div class="wire" style="height:62px;padding:6px;color:#777">Şu anki bölüm<br><b style="font-size:13px;color:#444">BÖLÜM ADI</b><br>saat · süre</div>
+            <div style="display:flex;gap:5px"><div class="wire" style="flex:1;height:34px;padding:4px;color:#777">sayı</div><div class="wire" style="flex:1;height:34px;padding:4px;color:#777">saat</div></div>
+            <div style="height:44px;border:2px solid #555;border-radius:6px;display:grid;place-items:center;font-weight:600;color:#444">[ QR OKUT ]</div>
+            <div style="color:#777">BUGÜN</div>
+            <div class="wire" style="height:24px"></div><div class="wire" style="height:24px"></div><div class="wire" style="height:24px"></div>
+          </div>
+          <div style="border-top:1px dashed #9C9688;padding:7px;display:flex;justify-content:space-around;color:#777;font-size:8px"><span>■</span><span>□</span><span>□</span><span>□</span></div>
+        </div>
+        <div class="etiket">Ana Sayfa taslağı</div>
+      </div>
+      <div class="tel-kutu">
+        <div class="tel" style="background:#fff;border-color:#9C9688;box-shadow:none">
+          <div style="flex:1;background:#E9E6DF;position:relative;display:flex;flex-direction:column;align-items:center">
+            <div style="position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;color:#555"><span>←</span><span>flaş</span></div>
+            <div style="width:110px;height:110px;border:2px dashed #555;border-radius:10px;margin-top:80px;display:grid;place-items:center;color:#777">kamera</div>
+            <div style="position:absolute;bottom:18px;left:10px;right:10px;text-align:center;color:#555">Bölüm QR kodunu okutun<br><span style="color:#888">açıklama</span></div>
+          </div>
+          <div style="border-top:1px dashed #9C9688;padding:7px;display:flex;justify-content:space-around;color:#777;font-size:8px"><span>□</span><span>■</span><span>□</span><span>□</span></div>
+        </div>
+        <div class="etiket">QR Tara taslağı</div>
+      </div>
+      <div class="tel-kutu">
+        <div class="tel" style="background:#fff;border-color:#9C9688;box-shadow:none">
+          <div style="flex:1;background:#CFCAC0;padding:16px;display:flex;flex-direction:column;justify-content:center;color:#444">
+            <div style="width:34px;height:34px;border:2px solid #444;border-radius:7px;margin-bottom:10px"></div>
+            <div style="color:#666">DURUM (giriş / çıkış)</div>
+            <div style="font-size:18px;font-weight:600">BÖLÜM ADI</div>
+            <div style="margin-top:6px">saat · açıklama</div>
+            <div style="margin-top:20px;color:#777">tam ekran renk → 2,5 sn sonra kapanır</div>
+          </div>
+        </div>
+        <div class="etiket">Okutma Sonucu taslağı</div>
+      </div>
+      <div class="tel-kutu">
+        <div class="tel" style="background:#fff;border-color:#9C9688;box-shadow:none">
+          <div style="background:#D8D4CB;padding:9px;color:#555;flex:none">Yönetim<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:7.5px"><u>Genel</u><span>Personeller</span><span>Bölümler</span><span>Hareketler</span></div></div>
+          <div class="ic">
+            <div class="wire" style="padding:6px;color:#777">🔍 Personel ara</div>
+            <div style="display:flex;gap:4px"><span class="wire" style="padding:2px 6px">Tümü</span><span class="wire" style="padding:2px 6px">Bölüm</span><span class="wire" style="padding:2px 6px">Bölüm</span></div>
+            <div class="wire" style="height:150px;padding:6px;color:#777;display:flex;flex-direction:column;gap:9px">
+              <div>[AV] Ad Soyad · bölüm · saat <span style="float:right">[durum]</span></div>
+              <div>[AV] Ad Soyad · bölüm · saat <span style="float:right">[durum]</span></div>
+              <div>[AV] Ad Soyad · bölüm · saat <span style="float:right">[durum]</span></div>
+              <div>[AV] Ad Soyad · bölüm · saat <span style="float:right">[durum]</span></div>
+            </div>
+          </div>
+          <div style="border-top:1px dashed #9C9688;padding:7px;display:flex;justify-content:space-around;color:#777;font-size:8px"><span>□</span><span>□</span><span>■</span><span>□</span><span>□</span></div>
+        </div>
+        <div class="etiket">Yönetim taslağı</div>
+      </div>
+    </div>
+    <figcaption>Temel ekranların kutu taslakları</figcaption>
+  </figure>
+</section>

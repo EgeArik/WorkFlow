@@ -1,0 +1,92 @@
+<!-- ======================= 3. SONUÇ ======================= -->
+<section>
+  <div class="bolum-ac">
+    <span class="kose a"></span><span class="kose b"></span>
+    <div class="no">03</div>
+    <h1>Sonuç</h1>
+    <p>Hedeflere ne kadar ulaşıldı: uygulamanın yerine getirdiği işlemler, test sonuçları, ürünün eksiklikleri, çözüm önerileri ve projenin sürdürülebilirliği.</p>
+  </div>
+
+  <h2><span class="n">3.1</span> Uygulamanın Yerine Getirdiği İşlemler</h2>
+  <p>Geliştirilen uygulama test edildiğinde şu işlemleri yerine getirdiği görüldü:</p>
+  <div class="iki-kolon">
+    <div class="kutu basari"><div class="kb">Personel için</div>
+      <ul>
+        <li>E-posta ve şifreyle kayıt olma, giriş yapma; oturumun açık kalması</li>
+        <li>Bölüm QR kodunu okutarak tek dokunuşla giriş ve çıkış yapma</li>
+        <li>Başka bölüme geçerken eski bölümden otomatik çıkış</li>
+        <li>Şu anki bölümü ve içeride geçen süreyi canlı görme</li>
+        <li>Geçmiş hareketleri gün, hafta ve ay olarak listeleme</li>
+        <li>Profil bilgilerini görme ve şifre değiştirme</li>
+        <li>Çıkış unutulursa 9 saat sonra otomatik çıkış ve bilgi mesajı</li>
+      </ul></div>
+    <div class="kutu basari"><div class="kb">Yönetici için</div>
+      <ul>
+        <li>Toplam ve içerideki personel sayısını, bölüm doluluklarını canlı izleme</li>
+        <li>Personeli ada göre arama ve bölüme göre filtreleme</li>
+        <li>Bölüm ekleme, pasif / aktif yapma</li>
+        <li>Bölüm QR kodunu ekranda gösterme, A4 PDF olarak kaydetme ve yazdırma</li>
+        <li>Bir personelin seçilen dönemdeki hareketlerini ve toplam çalışma süresini görme</li>
+        <li>Son hareketleri ve her bölümün son okutma saatini görme</li>
+      </ul></div>
+  </div>
+  <p>Proje başında belirlenen müşteri gereksinimlerinin (bkz. 2.2) hepsi karşılandı:</p>
+  <table>
+    <tr><th style="width:30px">#</th><th>Gereksinim</th><th style="width:110px">Durum</th><th>Nasıl karşılandı?</th></tr>
+    <tr><td>1</td><td>QR ile seçim yapmadan giriş / çıkış</td><td><span class="rozet y">Karşılandı</span></td><td>Karar <code>suAnkiBolumId</code> değerine göre otomatik verilir</td></tr>
+    <tr><td>2</td><td>Bölüm değiştirirken otomatik çıkış</td><td><span class="rozet y">Karşılandı</span></td><td>Durum C, tek transaction içinde</td></tr>
+    <tr><td>3</td><td>Yöneticinin canlı takibi</td><td><span class="rozet y">Karşılandı</span></td><td>Firestore <code>snapshots()</code> + StreamBuilder</td></tr>
+    <tr><td>4</td><td>Saatin oynanamaması</td><td><span class="rozet y">Karşılandı</span></td><td><code>serverTimestamp</code> + güvenlik kuralı</td></tr>
+    <tr><td>5</td><td>Unutulan çıkış</td><td><span class="rozet y">Karşılandı</span></td><td>9 saat kuralı</td></tr>
+    <tr><td>6</td><td>Bölümlerin silinmemesi</td><td><span class="rozet y">Karşılandı</span></td><td>Pasif yapma; kurallarda silme izni yok</td></tr>
+    <tr><td>7</td><td>QR'ın A4 PDF olarak alınması</td><td><span class="rozet y">Karşılandı</span></td><td><code>pdf</code> ve <code>printing</code> paketleri, vektör QR</td></tr>
+    <tr><td>8</td><td>Veri gizliliği ve rol güvenliği</td><td><span class="rozet y">Karşılandı</span></td><td>Firestore güvenlik kuralları</td></tr>
+  </table>
+
+  <h2><span class="n">3.2</span> Test Sonuçları</h2>
+  <p>Testler 22 Kasım 2026'da gerçek bir Android telefonda (Xiaomi), uygulamanın hata ayıklama (debug) sürümüyle yapıldı. Her senaryo hem personel hem yönetici hesabıyla denendi. Yönetici ekranının canlı güncellenip güncellenmediğini görmek için bazı testlerde veritabanı değerleri Firebase konsolundan elle değiştirildi.</p>
+  <table>
+    <tr><th style="width:24px">#</th><th style="width:130px">Senaryo</th><th>Nasıl denendi?</th><th>Beklenen sonuç</th><th style="width:70px">Sonuç</th></tr>
+    <tr><td>1</td><td>Geçersiz QR</td><td>WorkFlow'a ait olmayan bir QR okutuldu</td><td>Kırmızı ekranda “Geçersiz QR”</td><td><span class="rozet y">Başarılı</span></td></tr>
+    <tr><td>2a</td><td>Pasif bölüme giriş</td><td>Bölüm pasif yapıldı, dışarıdayken QR okutuldu</td><td>“Bu bölüm şu an pasif. Giriş yapamazsınız.”</td><td><span class="rozet y">Başarılı</span></td></tr>
+    <tr><td>2b</td><td>Pasif bölümden çıkış</td><td>Kişi içerideyken bölüm pasif yapıldı, QR okutuldu</td><td>Normal çıkış ekranı, çıkış kaydedilir</td><td><span class="rozet y">Başarılı</span></td></tr>
+    <tr><td>3</td><td>İnternet kesintisi</td><td>Wi-Fi ve mobil veri kapatıldı, QR okutulmaya çalışıldı</td><td>Kırmızı şerit; okutmada internet hatası</td><td><span class="rozet y">Başarılı</span></td></tr>
+    <tr><td>4</td><td>Kamera izni reddi</td><td>İzin penceresinde “İzin verme” seçildi</td><td>Açıklama + “Ayarlara git”; izin verilince kamera açılır</td><td><span class="rozet y">Başarılı</span>*</td></tr>
+    <tr><td>5</td><td>Çıkışı unutma</td><td>Konsoldan giriş zamanı 9 saatten eskiye (09:00) alındı</td><td>1 dk içinde bilgi mesajı; 18:00 zamanlı otomatik çıkış</td><td><span class="rozet y">Başarılı</span></td></tr>
+    <tr><td>6</td><td>Art arda okutma</td><td>Aynı QR 10 sn içinde iki kez okutuldu</td><td>“Bu QR az önce okutuldu”, yeni kayıt yok</td><td><span class="rozet y">Başarılı</span></td></tr>
+    <tr><td>7</td><td>Yetkisiz erişim</td><td>Personel hesabıyla giriş yapıldı</td><td>Yönetim sekmesi yok; kurallar başkasının verisini reddeder</td><td><span class="rozet y">Başarılı</span></td></tr>
+  </table>
+  <p style="font-size:9pt;color:#6E6B60">* İlk denemede hata bulundu, düzeltildikten sonra test tekrarlandı.</p>
+
+  <h3>Testlerde bulunan ve düzeltilen hatalar</h3>
+  <table>
+    <tr><th>Hata</th><th>Sebep</th><th>Çözüm</th></tr>
+    <tr><td>Kamera izni reddedilince izin penceresi sürekli yeniden açılıyordu (sonsuz döngü)</td><td>İzin penceresi kapanınca uygulama “geri döndü” sinyali alıyor, kod her seferinde kamerayı yeniden başlatıyor, kamera da tekrar izin istiyordu</td><td>Kamera yalnızca “Ayarlara git”ten dönülünce ve izin gerçekten verildiyse yeniden başlatılıyor</td></tr>
+    <tr><td>İzin hata ekranında tarama çerçevesi yazının üstüne biniyordu</td><td>Çerçeve her durumda çiziliyordu</td><td>Kamera hata verdiyse çerçeve çizilmiyor</td></tr>
+    <tr><td>Çalışma süresi çok uzun çıkıyordu (17 sa 31 dk)</td><td>Girişi listede olmayan bir çıkış, gece 00:00'dan itibaren sayılıyordu</td><td>Girişi bilinmeyen çıkış süreye eklenmiyor</td></tr>
+    <tr><td>Yönetim sekmesinde “Personeller” yazısı kesiliyordu</td><td>Dört sekme dar ekrana eşit bölünüyordu</td><td>Sekmeler yazı kadar geniş ve yana kaydırılabilir yapıldı</td></tr>
+  </table>
+  <div class="kutu basari"><div class="kb">Genel değerlendirme</div><p>Geliştirilen yazılımın işlevleri test edildiğinde müşteri ihtiyaçlarını karşıladığı, beklenmeyen bir hatayla kapanmadığı ve tüm hata durumlarında kullanıcıya anlaşılır Türkçe mesajlar gösterdiği görüldü. Uygulama, APK dosyası hâline getirilerek Android telefonlara kurulabilir durumdadır.</p></div>
+
+  <h2><span class="n">3.3</span> Ürünün Eksiklikleri ve Çözüm Önerileri</h2>
+  <p>Proje süresi ve ücretsiz plan sınırları nedeniyle bazı özellikler bilinçli olarak yapılmadı; bazı konularda da bilinen sınırlamalar var:</p>
+  <table>
+    <tr><th style="width:170px">Eksiklik / Sınırlama</th><th>Açıklama</th><th>Çözüm önerisi</th></tr>
+    <tr><td><b>Otomatik çıkışı kişinin kendi telefonu yazar</b></td><td>Sunucu olmadığı için, telefonu kapalı olan kişinin otomatik çıkış kaydı uygulamayı açana kadar yazılmaz (yönetici ekranı yine de onu “Dışarıda” gösterir).</td><td>Firebase Cloud Functions ile her saat çalışan küçük bir sunucu görevi bu kayıtları kendisi yazabilir (ücretli plan gerektirir).</td></tr>
+    <tr><td><b>Yönetici otomatik çıkış saatini düzeltemez</b></td><td>Çıkışı unutan kişi aslında 17:30'da çıktıysa kayıt yine “giriş + 9 saat” olarak kalır.</td><td>Yöneticiye, otomatik çıkış kayıtlarının saatini gerekçe yazarak düzeltebileceği bir ekran eklenebilir.</td></tr>
+    <tr><td><b>Mesai saati kuralı yok</b></td><td>Mesai bittikten sonra (örneğin 17:00'den sonra) da bölüme giriş yapılabilir.</td><td>Okutma anında sunucu saatine bakılarak mesai dışı girişler engellenebilir veya işaretlenebilir.</td></tr>
+    <tr><td><b>Gece yarısını geçen mesai</b></td><td>23:00'te girip 01:00'de çıkan kişinin “Bugün” süresinde 00:00–01:00 arası sayılmaz.</td><td>Süre hesabında dönemin hemen öncesindeki son giriş kaydı da sorgulanabilir.</td></tr>
+    <tr><td><b>İnternetsiz okutma</b></td><td>İnternet yokken okutma kaydedilmez.</td><td>Okutmalar telefonda sıraya alınıp internet gelince gönderilebilir (zaman güvenliği ayrıca düşünülmeli).</td></tr>
+    <tr><td><b>Kapsam dışı özellikler</b></td><td>GPS, anlık bildirim, profil fotoğrafı, “şifremi unuttum”, çoklu kurum, NFC/Bluetooth yok.</td><td>Öncelik sırasıyla “şifremi unuttum” (Firebase'de hazır), bildirim (FCM) ve çoklu kurum desteği eklenebilir.</td></tr>
+    <tr><td><b>iOS'ta denenmedi</b></td><td>Kod iOS'a uygun yazıldı ama Apple cihazda test edilmedi.</td><td>Bir Mac ve iPhone ile derlenip test edilmeli.</td></tr>
+    <tr><td><b>Raporlama</b></td><td>Aylık çalışma raporu dışa aktarılamıyor.</td><td>Hareketler ekranına Excel / PDF dışa aktarma eklenebilir.</td></tr>
+  </table>
+
+  <h2><span class="n">3.4</span> Sürdürülebilirlik</h2>
+  <div class="uc-kolon">
+    <div class="kart"><div class="ikon">₺</div><h5>Maliyet</h5><p>Firebase'in ücretsiz planında Firestore için günde 50.000 okuma ve 20.000 yazma hakkı vardır. 100 personelin günde 6'şar okutma yapması yaklaşık 1.800 yazma demektir; bu, sınırın çok altındadır. Kapılar için sadece kâğıt çıktı gerekir.</p></div>
+    <div class="kart"><div class="ikon">⚙</div><h5>Bakım kolaylığı</h5><p>Kodlar katmanlara ayrıldı, isimler Türkçe ve anlamlı, önemli satırlarda açıklamalar var. Her değişiklik Git ile kayıt altında. Kod rehberi belgesi her dosyanın ne yaptığını anlatıyor; projeyi yeni devralan biri sistemi hızla anlayabilir.</p></div>
+    <div class="kart"><div class="ikon">↗</div><h5>Büyüme</h5><p>Bölüm sayısında sınır yoktur; yeni bölüm eklemek bir dakika sürer. Firestore kullanıcı sayısı arttıkça kendiliğinden ölçeklenir. Mesai kuralı, düzeltme ekranı gibi eklemeler mevcut yapıyı bozmadan yapılabilir.</p></div>
+  </div>
+  <p>Sonuç olarak WorkFlow, fabrikalar ve ofisler için düşük maliyetli, kurulumu kolay ve güvenli bir personel bölüm takip çözümü olarak hedeflerine ulaşmıştır. Ücretsiz altyapıyla çalışabilmesi, kodunun düzenli ve belgelenmiş olması ve yeni özelliklere açık yapısı sayesinde sürdürülebilir bir projedir.</p>
+</section>

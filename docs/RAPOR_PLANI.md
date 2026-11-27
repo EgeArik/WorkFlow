@@ -1,6 +1,6 @@
 # Proje Sonu Raporu – Plan
 
-Rapor, proje tamamlandıktan sonra (Gün 7 sonrası) yazılacak. Aşağıda raporun bölümleri ve çizilecek diyagramlar yer alıyor.
+**Durum: Rapor hazırlandı → `docs/rapor/WorkFlow_Proje_Raporu.pdf`** (kaynak dosyaları `docs/rapor/kaynak/`, üretmek için `python docs/rapor/olustur.py`). Aşağıda raporun bölümleri ve diyagramları yer alıyor.
 
 ## Rapor bölümleri
 

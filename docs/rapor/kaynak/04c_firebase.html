@@ -1,0 +1,156 @@
+<!-- ======================= 2.4 YAPI + 2.5 FIREBASE ======================= -->
+<section>
+  <h2><span class="n">2.4</span> Uygulamanın Yapısı</h2>
+  <p>Kodlar <code>lib</code> klasöründe görevlerine göre ayrı klasörlerde tutulur. Bu düzen sayesinde bir ekranın görünüşü değiştirilmek istendiğinde veritabanı kodlarına; veritabanında bir değişiklik olduğunda da ekranlara dokunmak gerekmez. Her katman yalnızca bir altındaki katmanı kullanır.</p>
+  <figure class="diyagram" id="g-katman">
+    <svg viewBox="0 0 720 300">
+      <defs><marker id="ok4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 10 5 0 10z" fill="#D99A2B"/></marker></defs>
+      <!-- sol: klasör ağacı -->
+      <rect x="10" y="10" width="250" height="280" rx="12" fill="#0F2D31"/>
+      <g font-family="Consolas, monospace" font-size="11.5" fill="#E8E2D2">
+        <text x="26" y="38" fill="#F0C674">lib/</text>
+        <text x="40" y="60">├─ main.dart</text><text x="160" y="60" fill="#7FA39E" font-size="9.5">giriş noktası</text>
+        <text x="40" y="80">├─ tema.dart</text><text x="160" y="80" fill="#7FA39E" font-size="9.5">renkler, stil</text>
+        <text x="40" y="100">├─ firebase_options.dart</text>
+        <text x="40" y="124" fill="#8FD9C4">├─ ekranlar/</text><text x="160" y="124" fill="#7FA39E" font-size="9.5">13 ekran</text>
+        <text x="54" y="142" fill="#8FD9C4">│  └─ yonetim/</text>
+        <text x="40" y="166" fill="#8FD9C4">├─ widgetlar/</text><text x="160" y="166" fill="#7FA39E" font-size="9.5">ortak parçalar</text>
+        <text x="40" y="190" fill="#8FD9C4">├─ servisler/</text><text x="160" y="190" fill="#7FA39E" font-size="9.5">Firebase işleri</text>
+        <text x="40" y="214" fill="#8FD9C4">├─ modeller/</text><text x="160" y="214" fill="#7FA39E" font-size="9.5">veri sınıfları</text>
+        <text x="40" y="238" fill="#8FD9C4">└─ yardimcilar/</text><text x="160" y="238" fill="#7FA39E" font-size="9.5">saat, süre</text>
+        <text x="26" y="270" fill="#F0C674">firestore.rules</text><text x="160" y="270" fill="#7FA39E" font-size="9.5">güvenlik</text>
+      </g>
+      <!-- sağ: katmanlar -->
+      <g font-size="12">
+        <rect x="300" y="14" width="260" height="52" rx="10" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/>
+        <text x="316" y="36" font-weight="600" fill="#0E4A4F">Ekranlar ve widget'lar</text><text x="316" y="54" font-size="10" fill="#6E6B60">Kullanıcının gördüğü her şey (ön yüz)</text>
+        <rect x="300" y="94" width="260" height="52" rx="10" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.5"/>
+        <text x="316" y="116" font-weight="600" fill="#1E2A2B">Servisler</text><text x="316" y="134" font-size="10" fill="#6E6B60">Firebase ile konuşan sınıflar (arka yüz)</text>
+        <rect x="300" y="174" width="260" height="52" rx="10" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/>
+        <text x="316" y="196" font-weight="600" fill="#0E4A4F">Modeller</text><text x="316" y="214" font-size="10" fill="#6E6B60">Kullanici, Bolum, Hareket</text>
+        <rect x="590" y="64" width="120" height="112" rx="12" fill="#0E4A4F"/>
+        <text x="650" y="108" text-anchor="middle" fill="#fff" font-weight="600">Firebase</text><text x="650" y="126" text-anchor="middle" fill="#D6E4E3" font-size="10">Auth</text><text x="650" y="140" text-anchor="middle" fill="#D6E4E3" font-size="10">Firestore</text>
+        <text x="430" y="262" text-anchor="middle" font-size="10.5" fill="#6E6B60">Ekranlar Firebase'i doğrudan çağırmaz; her zaman bir servis üzerinden gider.</text>
+      </g>
+      <g stroke="#D99A2B" stroke-width="2.4" fill="none" marker-end="url(#ok4)">
+        <path d="M430 66 V92"/><path d="M430 146 V172"/><path d="M560 120 H588"/>
+      </g>
+    </svg>
+    <figcaption>Klasör yapısı ve katmanlar</figcaption>
+  </figure>
+
+  <h2><span class="n">2.5</span> Firebase Bağlantısı</h2>
+  <p>WorkFlow'un arka yüzü tamamen <b>Firebase</b> üzerinde çalışır. Firebase, Google'ın uygulama geliştiricilere sunduğu bir bulut platformudur. Bu projede iki hizmeti kullanıldı: kullanıcı hesapları için <b>Authentication</b>, veriler için <b>Cloud Firestore</b>. Telefon bu hizmetlerle internet üzerinden doğrudan konuşur; arada bizim yazdığımız bir sunucu yoktur.</p>
+  <figure class="diyagram" id="g-firebase-genel">
+    <svg viewBox="0 0 720 230">
+      <defs><marker id="ok5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#0E4A4F"/></marker></defs>
+      <!-- telefon -->
+      <rect x="20" y="20" width="200" height="190" rx="22" fill="#1C1F1F"/><rect x="30" y="30" width="180" height="170" rx="14" fill="#F4EFE4"/>
+      <text x="120" y="54" text-anchor="middle" font-size="12" font-weight="600" fill="#0E4A4F">WorkFlow uygulaması</text>
+      <g font-size="10.5">
+        <rect x="44" y="66" width="152" height="26" rx="6" fill="#FFFCF6" stroke="#E2D9C6"/><text x="120" y="83" text-anchor="middle">firebase_core</text>
+        <rect x="44" y="100" width="152" height="26" rx="6" fill="#FFFCF6" stroke="#E2D9C6"/><text x="120" y="117" text-anchor="middle">firebase_auth</text>
+        <rect x="44" y="134" width="152" height="26" rx="6" fill="#FFFCF6" stroke="#E2D9C6"/><text x="120" y="151" text-anchor="middle">cloud_firestore</text>
+        <text x="120" y="186" text-anchor="middle" fill="#6E6B60" font-size="9.5">firebase_options.dart</text>
+      </g>
+      <!-- bulut -->
+      <path d="M300 92 h120" stroke="#0E4A4F" stroke-width="2" marker-start="url(#ok5)" marker-end="url(#ok5)"/>
+      <path d="M300 140 h120" stroke="#0E4A4F" stroke-width="2" marker-start="url(#ok5)" marker-end="url(#ok5)"/>
+      <text x="360" y="84" text-anchor="middle" font-size="10" fill="#6E6B60">e-posta + şifre / oturum</text>
+      <text x="360" y="132" text-anchor="middle" font-size="10" fill="#6E6B60">oku · yaz · canlı dinle</text>
+      <text x="360" y="170" text-anchor="middle" font-size="10" fill="#A8741A" font-weight="600">İNTERNET (HTTPS)</text>
+      <rect x="440" y="14" width="270" height="202" rx="18" fill="#0E4A4F"/>
+      <text x="575" y="40" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Google Firebase</text>
+      <g font-size="11">
+        <rect x="458" y="56" width="234" height="44" rx="9" fill="#FFFCF6"/><text x="472" y="75" font-weight="600" fill="#0E4A4F">Authentication</text><text x="472" y="91" font-size="9.5" fill="#6E6B60">hesaplar, şifreler, uid</text>
+        <rect x="458" y="108" width="234" height="44" rx="9" fill="#FFFCF6"/><text x="472" y="127" font-weight="600" fill="#0E4A4F">Cloud Firestore</text><text x="472" y="143" font-size="9.5" fill="#6E6B60">kullanicilar · bolumler · hareketler</text>
+        <rect x="458" y="160" width="234" height="40" rx="9" fill="#F3E2BF"/><text x="472" y="177" font-weight="600" fill="#1E2A2B">Güvenlik kuralları</text><text x="472" y="192" font-size="9.5" fill="#6E6B60">her isteği kontrol eder</text>
+      </g>
+    </svg>
+    <figcaption>Uygulama ile Firebase arasındaki bağlantı</figcaption>
+  </figure>
+
+  <h3>2.5.1 Uygulamanın Firebase'e Bağlanması</h3>
+  <p>Bağlantı dört adımda kuruldu:</p>
+  <ol>
+    <li><b>Firebase projesi açıldı:</b> Firebase konsolunda “WorkFlow” projesi oluşturuldu; Authentication bölümünde “E-posta/Şifre” ile giriş açıldı ve Cloud Firestore veritabanı oluşturuldu.</li>
+    <li><b>Uygulama projeye tanıtıldı:</b> <code>flutterfire configure</code> komutu çalıştırıldı. Bu komut Android uygulamasını Firebase projesine kaydetti ve iki dosya üretti: Android için <code>google-services.json</code> ve Dart için <code>firebase_options.dart</code>. Bu dosyalar uygulamanın hangi Firebase projesine bağlanacağını söyleyen kimlik bilgilerini içerir.</li>
+    <li><b>Paketler eklendi:</b> <code>firebase_core</code>, <code>firebase_auth</code> ve <code>cloud_firestore</code> paketleri <code>pubspec.yaml</code> dosyasına yazıldı.</li>
+    <li><b>Uygulama açılırken Firebase başlatıldı:</b> Aşağıdaki <code>main</code> fonksiyonu uygulamanın ilk çalışan kodudur.</li>
+  </ol>
+  <!--KOD lib/main.dart | 15-25 | Uygulama açılırken Firebase'in başlatılması (main.dart)-->
+  <p><code>await</code> kelimesi “bu iş bitene kadar bekle” demektir. Firebase hazır olmadan ekran açılırsa veritabanına erişilemeyeceği için önce <code>Firebase.initializeApp</code> beklenir, sonra <code>runApp</code> ile uygulama ekrana çizilir. <code>DefaultFirebaseOptions.currentPlatform</code>, telefonun Android mi iOS mu olduğuna bakıp doğru ayarları seçer.</p>
+
+  <h3>2.5.2 Oturum Yönetimi (Authentication)</h3>
+  <p>Kullanıcı bir kez giriş yaptığında Firebase oturumu telefonda saklar; uygulama kapatılıp açılsa bile tekrar şifre sorulmaz. Uygulama, hangi ekranın açılacağına iki “kapı” ile karar verir:</p>
+  <figure class="diyagram" id="g-oturum">
+    <svg viewBox="0 0 720 200">
+      <defs><marker id="ok6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#0E4A4F"/></marker></defs>
+      <g font-size="11" text-anchor="middle">
+        <rect x="10" y="74" width="100" height="44" rx="22" fill="#0E4A4F"/><text x="60" y="100" fill="#fff" font-weight="600">Uygulama açılır</text>
+        <path d="M190 56 L250 96 L190 136 L130 96Z" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.6"/><text x="190" y="92">Oturum</text><text x="190" y="106">var mı?</text>
+        <rect x="140" y="160" width="100" height="34" rx="8" fill="#FFFCF6" stroke="#B4472F" stroke-width="1.5"/><text x="190" y="182" fill="#B4472F" font-weight="600">Giriş ekranı</text>
+        <rect x="290" y="72" width="150" height="48" rx="10" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="365" y="92" font-weight="600" fill="#0E4A4F">Kullanıcı belgesini</text><text x="365" y="108" font-weight="600" fill="#0E4A4F">canlı yükle</text>
+        <path d="M540 56 L600 96 L540 136 L480 96Z" fill="#F3E2BF" stroke="#D99A2B" stroke-width="1.6"/><text x="540" y="92">Rol</text><text x="540" y="106">nedir?</text>
+        <rect x="620" y="22" width="92" height="40" rx="8" fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.5"/><text x="666" y="38" font-size="10" fill="#0E4A4F" font-weight="600">4 sekmeli</text><text x="666" y="52" font-size="10">personel menüsü</text>
+        <rect x="620" y="130" width="92" height="40" rx="8" fill="#0E4A4F"/><text x="666" y="146" font-size="10" fill="#D99A2B" font-weight="600">5 sekmeli</text><text x="666" y="160" font-size="10" fill="#fff">yönetici menüsü</text>
+      </g>
+      <g stroke="#0E4A4F" stroke-width="1.6" fill="none" marker-end="url(#ok6)">
+        <path d="M110 96 H128"/><path d="M190 136 V158"/><path d="M250 96 H288"/><path d="M440 96 H478"/><path d="M570 76 L618 46"/><path d="M570 116 L618 146"/>
+      </g>
+      <g font-size="9.5" fill="#6E6B60"><text x="196" y="150">hayır</text><text x="256" y="88">evet</text><text x="580" y="56">personel</text><text x="580" y="140">yonetici</text></g>
+      <text x="190" y="22" text-anchor="middle" font-size="10" fill="#A8741A" font-weight="600">1. KAPI · OturumKapisi</text>
+      <text x="460" y="22" text-anchor="middle" font-size="10" fill="#A8741A" font-weight="600">2. KAPI · KullaniciYukleyici</text>
+    </svg>
+    <figcaption>Uygulama açıldığında hangi ekranın gösterileceğine karar veren iki kapı</figcaption>
+  </figure>
+  <!--KOD lib/main.dart | 45-70 | 1. kapı: oturum durumunu dinleyen OturumKapisi sınıfı-->
+  <p><code>authStateChanges()</code> bir <b>Stream</b> (veri akışı) döndürür: kullanıcı giriş yaptığında bu akıştan bir <code>User</code> nesnesi, çıkış yaptığında <code>null</code> gelir. <b>StreamBuilder</b> widget'ı bu akışı dinler ve her yeni değerde ekranı yeniden çizer. Böylece “Çıkış Yap” butonuna basıldığında hiçbir yönlendirme kodu yazmadan uygulama kendiliğinden Giriş ekranına döner.</p>
+
+  <div class="kutu kavram"><div class="kb">Şifreler nerede saklanıyor?</div><p>Şifreler <b>hiçbir zaman</b> uygulamada veya Firestore veritabanında tutulmaz. Kayıtta şifre doğrudan Firebase Authentication'a gönderilir; Google bunu geri çevrilemeyen biçimde (hash) saklar. Firestore'daki kullanıcı belgesinde şifre alanı yoktur. Şifre değiştirirken de güvenlik için önce mevcut şifre tekrar doğrulanır (<code>reauthenticateWithCredential</code>).</p></div>
+
+  <h3>2.5.3 Firestore ve Canlı Veri</h3>
+  <p>Firestore'un en güçlü özelliği <b>canlı dinleme</b>dir. Uygulama bir sorguyu <code>snapshots()</code> ile dinlemeye başladığında Firestore önce mevcut veriyi gönderir, sonra o veride bir değişiklik olduğu <b>her an</b> yenisini kendiliğinden gönderir. Bu sayede yönetici ekranı yenilemeye gerek kalmadan güncellenir.</p>
+  <figure class="diyagram" id="g-canli">
+    <svg viewBox="0 0 720 190">
+      <defs><marker id="ok7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#D99A2B"/></marker></defs>
+      <g font-size="11" text-anchor="middle">
+        <rect x="10" y="40" width="150" height="110" rx="16" fill="#1C1F1F"/><rect x="18" y="48" width="134" height="94" rx="10" fill="#2E7D4F"/>
+        <text x="85" y="88" fill="#fff" font-weight="600">Giriş kaydedildi</text><text x="85" y="106" fill="#D6E4E3" font-size="10">Ayşe · Montaj Hattı</text>
+        <text x="85" y="172" font-weight="600" fill="#0E4A4F">Personelin telefonu</text>
+        <rect x="285" y="45" width="150" height="100" rx="14" fill="#0E4A4F"/><text x="360" y="85" fill="#fff" font-weight="600">Cloud Firestore</text><text x="360" y="104" fill="#D6E4E3" font-size="10">hareketler +1 kayıt</text><text x="360" y="120" fill="#D6E4E3" font-size="10">kullanicilar güncellendi</text>
+        <rect x="560" y="40" width="150" height="110" rx="16" fill="#1C1F1F"/><rect x="568" y="48" width="134" height="94" rx="10" fill="#F4EFE4"/>
+        <text x="635" y="74" fill="#0E4A4F" font-weight="600" font-size="10">Montaj Hattı</text><rect x="585" y="80" width="100" height="6" rx="3" fill="#ECE7DB"/><rect x="585" y="80" width="62" height="6" rx="3" fill="#0E4A4F"/>
+        <text x="635" y="104" fill="#1E2A2B" font-size="10">8 → <tspan font-weight="600" fill="#2E7D4F">9 kişi</tspan></text><text x="635" y="124" fill="#6E6B60" font-size="9">StreamBuilder yeniden çizdi</text>
+        <text x="635" y="172" font-weight="600" fill="#0E4A4F">Yöneticinin telefonu</text>
+      </g>
+      <g stroke="#D99A2B" stroke-width="2.4" fill="none" marker-end="url(#ok7)"><path d="M165 95 H280"/><path d="M440 95 H555"/></g>
+      <g font-size="10" fill="#6E6B60" text-anchor="middle"><text x="222" y="86">1 · yazar</text><text x="222" y="114" font-size="9">(transaction)</text><text x="498" y="86">2 · haber verir</text><text x="498" y="114" font-size="9">(snapshots)</text></g>
+    </svg>
+    <figcaption>Bir okutmanın yöneticinin ekranına canlı olarak yansıması</figcaption>
+  </figure>
+  <p>Veritabanından okuma yapan tüm fonksiyonlar <code>VeriServisi</code> sınıfında toplandı. Aşağıda, bir kullanıcının bilgilerini canlı dinleyen fonksiyon ile bir kullanıcının belirli bir tarihten sonraki hareketlerini getiren sorgu görülüyor:</p>
+  <!--KOD lib/servisler/veri_servisi.dart | 11-22 | Bir kullanıcının belgesini canlı dinleyen kullaniciAkisi fonksiyonu-->
+  <!--KOD lib/servisler/veri_servisi.dart | 33-53 | Hareketleri filtreleyip sıralayan Firestore sorgusu-->
+  <p>Sorgu üç parçadan oluşur: <code>where</code> ile filtreleme (sadece bu kullanıcının, bu tarihten sonraki kayıtları), <code>orderBy</code> ile sıralama (en yeni en üstte) ve <code>snapshots()</code> ile canlı dinleme. <code>map</code> fonksiyonu Firestore'dan gelen ham dokümanları <code>Hareket</code> nesnelerine çevirir; böylece ekranlar ham veriyle değil, düzenli Dart nesneleriyle çalışır.</p>
+
+  <h3>2.5.4 Güvenlik Kuralları</h3>
+  <p>Firestore'a telefondan doğrudan erişildiği için, kötü niyetli biri uygulamanın kodunu değiştirip veritabanına istediğini yazmaya çalışabilir. Bunu önleyen şey <b>güvenlik kurallarıdır</b>. Kurallar Firebase sunucusunda çalışır ve gelen <b>her</b> okuma/yazma isteğini kontrol eder. Kuralda izin verilmeyen her şey otomatik olarak yasaktır. Kurallar proje klasöründeki <code>firestore.rules</code> dosyasında yazılıp <code>firebase deploy</code> komutuyla yayınlandı.</p>
+  <!--KOD firestore.rules | 9-23 | Kurallarda tekrar kullanılan yardımcı fonksiyonlar-->
+  <!--KOD firestore.rules | 25-54 | kullanicilar koleksiyonunun kuralları: kimse rolünü değiştiremez-->
+  <!--KOD firestore.rules | 84-103 | hareketler koleksiyonunun kuralları: kayıtlar silinemez, saat sunucudan alınır-->
+  <table class="butun">
+    <tr><th>Saldırı / hata girişimi</th><th>Kuralın cevabı</th></tr>
+    <tr><td>Personel kayıt olurken kendini “yonetici” yapmaya çalışır</td><td><span class="rozet k">Reddedilir</span> Kayıtta <code>rol == 'personel'</code> zorunlu</td></tr>
+    <tr><td>Personel sonradan kendi <code>rol</code> alanını değiştirmeye çalışır</td><td><span class="rozet k">Reddedilir</span> Sadece bölüm alanları değişebilir (<code>affectedKeys</code>)</td></tr>
+    <tr><td>Telefonun saati geri alınarak geçmiş tarihli kayıt yazılır</td><td><span class="rozet k">Reddedilir</span> <code>zaman == request.time</code> (sunucu saati) şartı</td></tr>
+    <tr><td>Başkası adına hareket kaydı yazılır</td><td><span class="rozet k">Reddedilir</span> <code>kullaniciId == request.auth.uid</code> şartı</td></tr>
+    <tr><td>Pasif bir bölüme giriş kaydı yazılır</td><td><span class="rozet k">Reddedilir</span> <code>aktifBolum()</code> kontrolü</td></tr>
+    <tr><td>Bir hareket kaydı silinir veya değiştirilir</td><td><span class="rozet k">Reddedilir</span> update/delete kuralı yok</td></tr>
+    <tr><td>Personel başka birinin hareketlerini okur</td><td><span class="rozet k">Reddedilir</span> Yalnızca kendi kayıtları veya yönetici</td></tr>
+  </table>
+
+  <h3>2.5.5 Bileşik İndeks</h3>
+  <p>Firestore, birden fazla alana göre filtreleyip sıralayan sorgular için önceden hazırlanmış bir <b>indeks</b> ister. “Bu kullanıcının hareketlerini zamana göre sırala” sorgusu hem <code>kullaniciId</code> hem <code>zaman</code> alanını kullandığı için aşağıdaki bileşik indeks tanımlandı. İndeks, alfabetik sıralanmış bir sözlük gibi çalışır: veritabanı bütün kayıtları tek tek taramadan doğru kayıtlara hızla ulaşır.</p>
+  <!--KOD firestore.indexes.json | 1-13 | hareketler koleksiyonu için bileşik indeks tanımı-->
+</section>

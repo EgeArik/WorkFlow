@@ -61,6 +61,12 @@ ThemeData uygulamaTemasi() {
       seedColor: Renkler.petrol,
       primary: Renkler.petrol,
       secondary: Renkler.hardal,
+      // "Container" renkleri: Bölüm Ekle butonu ve seçili filtre düğmesi bunları kullanır.
+      // Vermezsek Flutter kendi açık mavi tonunu üretiyordu.
+      primaryContainer: Renkler.petrol,
+      onPrimaryContainer: Colors.white,
+      secondaryContainer: const Color(0xFFF3E2BF), // açık hardal
+      onSecondaryContainer: Renkler.petrol,
       error: Renkler.hata,
       surface: Renkler.kart,
     ),

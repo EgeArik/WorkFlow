@@ -454,3 +454,21 @@ QR okutuldu: "workflow:bolum:abc123"
 - **`yonetim_ekrani.dart`**, Geçmiş, Profil vb.: Renkler artık temadan geliyor.
 
 **Ekran görüntüleri:** `ekran-goruntuleri/tasarim-ana-sayfa.png`, `ekran-goruntuleri/tasarim-personeller.png`
+
+---
+
+## Proje sonuç raporu (docs/rapor)
+
+**Ne yapıldı:** Proje sonuç raporu 49 sayfalık, uygulamanın renkleriyle tasarlanmış bir PDF olarak hazırlandı: `docs/rapor/WorkFlow_Proje_Raporu.pdf`. Bölümler: Giriş, Araçlar ve Yöntemler, Sonuç, Kaynakça, Sözlük.
+
+### Nasıl üretiliyor?
+- **`docs/rapor/kaynak/`**: Raporun parçaları (HTML) ve stil dosyası (`stil.css`). Metni değiştirmek için bu dosyalar düzenlenir.
+- **`docs/rapor/olustur.py`**: Parçaları birleştirir, PDF'e çevirir. Çalıştırma: `python docs/rapor/olustur.py`
+  - `<!--KOD dosya | 10-20 | Başlık-->` işareti, o dosyanın o satırlarını **gerçek koddan** alıp renklendirilmiş kod penceresine çevirir. Kod değişirse rapor yeniden üretilince kod görselleri de güncellenir (satır numaraları kayarsa işaretteki aralık düzeltilmeli).
+  - `<!--MENU ...-->`, `<!--LOGO ...-->`, `<!--QR ...-->`: telefon çizimlerindeki alt menü, logo ve QR desenini üretir.
+  - Görsel numaraları ("Görsel 12:") ve içindekiler sayfa numaraları otomatik verilir.
+  - PDF'e çevirme işini Microsoft Edge'in başsız (ekransız) modu yapar.
+- Ekranlar telefon görüntüsü yerine uygulamanın tasarımıyla birebir **çizildi**; böylece giriş, okutma sonucu, hata gibi yakalaması zor ekranlar da gösterilebildi.
+
+### `tema.dart` küçük düzeltme
+- `primaryContainer` / `secondaryContainer` renkleri verildi. Verilmeyince Flutter "Bölüm Ekle" butonunu ve seçili filtre düğmesini kendi ürettiği açık maviyle boyuyordu; artık petrol ve açık hardal.

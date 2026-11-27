@@ -1,0 +1,228 @@
+<!-- ======================= 1. GİRİŞ ======================= -->
+<section>
+  <div class="bolum-ac" style="break-before:auto">
+    <span class="kose a"></span><span class="kose b"></span>
+    <div class="no">01</div>
+    <h1>Giriş</h1>
+    <p>Projenin tanıtıldığı bölüm: WorkFlow'un amacı, hangi probleme çözüm ürettiği, kimlerin kullandığı ve kullanıcılara sağladığı faydalar.</p>
+  </div>
+
+  <h2><span class="n">1.1</span> Projenin Amacı</h2>
+  <p><b>WorkFlow</b>, bir kurumda çalışan personelin gün içinde <b>hangi bölümde bulunduğunu QR kod ile takip eden</b> bir mobil uygulamadır. Fabrikadaki montaj hattı, depo, kalite kontrol, yemekhane ya da ofis gibi her bölümün kapısına o bölüme ait tek bir QR kod asılır. Çalışan bölüme girerken ve çıkarken bu kodu telefonundaki WorkFlow uygulamasıyla okutur. Uygulama kişinin o anki durumuna bakarak bu okutmanın <b>giriş</b> mi yoksa <b>çıkış</b> mı olduğuna kendisi karar verir ve kaydı saniyeler içinde buluta yazar.</p>
+  <p>Yönetici ise aynı uygulamanın <b>Yönetim</b> sekmesinden kimin hangi bölümde olduğunu, her bölümde kaç kişi bulunduğunu, bir personelin gün içinde nerelere girip çıktığını ve toplam ne kadar çalıştığını <b>canlı olarak</b> görür. Ekran yenilemeye gerek yoktur; bir personel QR okuttuğu anda yöneticinin ekranı kendiliğinden güncellenir.</p>
+
+  <figure class="diyagram" id="g-nasil">
+    <svg viewBox="0 0 720 210">
+      <defs><marker id="ok1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#D99A2B"/></marker></defs>
+      <!-- 1 -->
+      <rect x="20" y="30" width="190" height="150" rx="14" fill="#FFFCF6" stroke="#E2D9C6"/>
+      <circle cx="48" cy="56" r="14" fill="#0E4A4F"/><text x="48" y="61" text-anchor="middle" fill="#D99A2B" font-size="14" font-weight="600">1</text>
+      <rect x="88" y="72" width="70" height="80" rx="4" fill="#fff" stroke="#0E4A4F" stroke-width="2"/>
+      <rect x="98" y="84" width="16" height="16" fill="#111"/><rect x="132" y="84" width="16" height="16" fill="#111"/><rect x="98" y="118" width="16" height="16" fill="#111"/>
+      <rect x="120" y="106" width="6" height="6" fill="#111"/><rect x="134" y="120" width="8" height="8" fill="#111"/><rect x="122" y="128" width="5" height="5" fill="#111"/>
+      <text x="115" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#0E4A4F">Kapıda bölüm QR'ı</text>
+      <text x="115" y="60" text-anchor="middle" font-size="10.5" fill="#6E6B60" dx="18">Yönetici asar</text>
+      <!-- ok -->
+      <path d="M215 105 H265" stroke="#D99A2B" stroke-width="3" marker-end="url(#ok1)"/>
+      <!-- 2 -->
+      <rect x="270" y="30" width="190" height="150" rx="14" fill="#FFFCF6" stroke="#E2D9C6"/>
+      <circle cx="298" cy="56" r="14" fill="#0E4A4F"/><text x="298" y="61" text-anchor="middle" fill="#D99A2B" font-size="14" font-weight="600">2</text>
+      <rect x="338" y="62" width="54" height="96" rx="9" fill="#1C1F1F"/><rect x="342" y="68" width="46" height="84" rx="5" fill="#0d1414"/>
+      <rect x="352" y="88" width="26" height="26" rx="4" fill="none" stroke="#fff" stroke-width="2"/>
+      <rect x="342" y="134" width="46" height="18" rx="3" fill="#D99A2B"/><text x="365" y="146" text-anchor="middle" font-size="8" font-weight="600" fill="#1E2A2B">QR Okut</text>
+      <text x="365" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#0E4A4F">Personel okutur</text>
+      <!-- ok -->
+      <path d="M465 105 H515" stroke="#D99A2B" stroke-width="3" marker-end="url(#ok1)"/>
+      <!-- 3 -->
+      <rect x="520" y="30" width="180" height="150" rx="14" fill="#0E4A4F"/>
+      <circle cx="548" cy="56" r="14" fill="#D99A2B"/><text x="548" y="61" text-anchor="middle" fill="#0E4A4F" font-size="14" font-weight="600">3</text>
+      <text x="610" y="84" text-anchor="middle" font-size="11" fill="#D6E4E3">Montaj Hattı</text>
+      <rect x="560" y="90" width="100" height="6" rx="3" fill="#3E7A7E"/><rect x="560" y="90" width="76" height="6" rx="3" fill="#D99A2B"/>
+      <text x="610" y="114" text-anchor="middle" font-size="11" fill="#D6E4E3">Depo</text>
+      <rect x="560" y="120" width="100" height="6" rx="3" fill="#3E7A7E"/><rect x="560" y="120" width="40" height="6" rx="3" fill="#D99A2B"/>
+      <text x="610" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Yönetici canlı görür</text>
+    </svg>
+    <figcaption>WorkFlow'un üç adımda çalışma mantığı</figcaption>
+  </figure>
+
+  <h2><span class="n">1.2</span> Çözülen Problem</h2>
+  <p>Birçok fabrikada ve büyük ofiste personelin gün içindeki yeri kâğıt listelerle, kart okuyucularla ya da hiç tutulmadan takip edilir. Bu durum şu sorunlara yol açar:</p>
+  <div class="iki-kolon">
+    <div class="kutu dikkat"><div class="kb">Eski yöntemle</div>
+      <ul>
+        <li>Bir bölümde o an kaç kişinin çalıştığı bilinmez.</li>
+        <li>Acil bir durumda (yangın, tahliye) kimin hangi bölümde olduğu hemen söylenemez.</li>
+        <li>Kâğıda yazılan saatler unutulur, yanlış yazılır veya sonradan değiştirilebilir.</li>
+        <li>Kart okuyucu sistemleri pahalıdır ve her kapıya cihaz kurulması gerekir.</li>
+      </ul></div>
+    <div class="kutu basari"><div class="kb">WorkFlow ile</div>
+      <ul>
+        <li>Her bölümdeki kişi sayısı yönetici ekranında canlı görünür.</li>
+        <li>Kimin nerede olduğu tek dokunuşla listelenir ve aranabilir.</li>
+        <li>Saatler telefondan değil <b>sunucudan</b> alınır; kayıtlar silinemez ve değiştirilemez.</li>
+        <li>Kapıya cihaz değil, A4 kâğıda basılmış bir QR kod yeter. Personelin telefonu okuyucu olur.</li>
+      </ul></div>
+  </div>
+
+  <h2><span class="n">1.3</span> Kullanıcılar ve Roller</h2>
+  <p>Uygulama tek bir uygulamadır; giriş yapan kişinin <b>rolüne</b> göre alt menüsü ve yetkileri değişir. Kayıt olan herkes otomatik olarak <b>personel</b> olur. <b>Yönetici</b> rolü güvenlik gereği uygulamanın içinden verilemez; Firebase konsolundan elle atanır. Böylece kimse kendini yönetici yapamaz.</p>
+  <div class="iki-kolon">
+    <div class="kart"><div class="ikon">P</div><h5>Personel</h5>
+      <p>Fabrika işçisi veya ofis çalışanı. Uygulamayı genellikle ayakta, aceleyle ve bazen eldivenle kullanır; bu yüzden ekranları büyük ve sade tasarlandı.</p>
+      <ul style="margin-top:6px;font-size:9.5pt">
+        <li>QR okutarak bölümlere giriş ve çıkış yapar</li>
+        <li>Şu an hangi bölümde olduğunu ve ne zamandan beri orada olduğunu görür</li>
+        <li>Kendi geçmiş hareketlerini gün, hafta ve ay olarak listeler</li>
+        <li>Profilini görür, şifresini değiştirir</li>
+      </ul></div>
+    <div class="kart"><div class="ikon">Y</div><h5>Yönetici</h5>
+      <p>Bölüm sorumlusu veya insan kaynakları çalışanı. Genellikle ofisten kullanır; bu yüzden yönetim ekranları sıkı ve bilgi dolu tasarlandı.</p>
+      <ul style="margin-top:6px;font-size:9.5pt">
+        <li>Personelin yapabildiği her şeyi yapar</li>
+        <li>Toplam personeli, içerideki kişi sayısını ve bölüm doluluklarını görür</li>
+        <li>Personeli arar, bölüme göre filtreler</li>
+        <li>Bölüm ekler, pasif yapar, bölümün QR kodunu PDF olarak alır</li>
+        <li>Bir personelin seçilen gündeki hareketlerini ve toplam çalışma süresini görür</li>
+      </ul></div>
+  </div>
+
+  <table>
+    <tr><th>İşlem</th><th style="width:90px">Personel</th><th style="width:90px">Yönetici</th></tr>
+    <tr><td>Kayıt olma, giriş yapma, şifre değiştirme</td><td><span class="rozet y">Evet</span></td><td><span class="rozet y">Evet</span></td></tr>
+    <tr><td>QR okutarak giriş / çıkış</td><td><span class="rozet y">Evet</span></td><td><span class="rozet y">Evet</span></td></tr>
+    <tr><td>Kendi hareket geçmişini görme</td><td><span class="rozet y">Evet</span></td><td><span class="rozet y">Evet</span></td></tr>
+    <tr><td>Başka personelin bilgilerini ve hareketlerini görme</td><td><span class="rozet k">Hayır</span></td><td><span class="rozet y">Evet</span></td></tr>
+    <tr><td>Bölüm ekleme, pasif / aktif yapma, QR PDF alma</td><td><span class="rozet k">Hayır</span></td><td><span class="rozet y">Evet</span></td></tr>
+    <tr><td>Kendi rolünü değiştirme</td><td><span class="rozet k">Hayır</span></td><td><span class="rozet k">Hayır</span></td></tr>
+    <tr><td>Hareket kaydını silme veya değiştirme</td><td><span class="rozet k">Hayır</span></td><td><span class="rozet k">Hayır</span></td></tr>
+  </table>
+  <div class="kutu not"><div class="kb">Önemli</div><p>Bu yetkiler sadece ekranlarda gizlenmekle kalmaz; <b>veritabanının güvenlik kuralları</b> da aynı şeyi zorunlu kılar. Biri uygulamayı değiştirip başkasının verisini okumaya çalışsa bile Firebase isteği reddeder (bkz. 2.5.4).</p></div>
+
+  <h2><span class="n">1.4</span> Kapsam ve Sağlanan Faydalar</h2>
+  <p>WorkFlow, Android telefonlar için <b>Flutter</b> ile geliştirildi. Aynı kod iOS'ta da çalışabilecek şekilde yazıldı. Verileri Google'ın bulut hizmeti <b>Firebase</b>'de tutulduğu için ayrı bir sunucu kurulmasına gerek yoktur; ancak uygulamanın çalışması için <b>internet bağlantısı</b> gerekir. İnternet kesildiğinde uygulama bunu ekranın altında kırmızı bir şeritle bildirir ve kayıt yapmaz; böylece yanlış veya eksik kayıt oluşmaz.</p>
+  <div class="uc-kolon">
+    <div class="kart"><div class="ikon">₺</div><h5>Düşük maliyet</h5><p>Kapı başına cihaz gerekmez; QR kâğıda basılır. Firebase'in ücretsiz planı küçük ve orta ölçekli bir kurum için yeterlidir.</p></div>
+    <div class="kart"><div class="ikon">⚡</div><h5>Anlık bilgi</h5><p>Okutma ile yönetici ekranının güncellenmesi arasında yalnızca birkaç saniye vardır.</p></div>
+    <div class="kart"><div class="ikon">✓</div><h5>Güvenilir kayıt</h5><p>Saat sunucudan alınır, kayıtlar silinemez. Çıkışı unutanlar için 9 saat kuralı vardır.</p></div>
+  </div>
+
+  <h2><span class="n">1.5</span> Uygulamaya İlk Bakış</h2>
+  <p>Aşağıda uygulamanın en çok kullanılan dört ekranı görülüyor. Personelin her gün gördüğü <b>Ana Sayfa</b>, bölüm kodunun okutulduğu <b>QR Tara</b> ekranı, okutmadan hemen sonra gelen tam ekran <b>sonuç</b> ve yöneticinin <b>Genel</b> bakış ekranı.</p>
+
+  <figure class="vitrin" id="g-vitrin">
+    <div class="tel-sira dortlu">
+      <div class="tel-kutu">
+        <div class="tel">
+          <!--DURUM-->
+          <div class="ust-serit"><!--LOGO 20 koyu--><div class="selam">Günaydın, <b>Ayşe</b></div></div>
+          <div class="ic">
+            <div class="mkart durum-karti"><div class="serit"></div><div class="g">
+              <div class="kb-kucuk"><span class="nk"></span>Şu an içeride</div>
+              <div class="buyuk-ad">Montaj Hattı</div>
+              <div class="gri-y">08:12'den beri · 2 sa 35 dk</div></div></div>
+            <div class="ikili">
+              <div class="mkart"><div><b>3</b><span class="gri-y">Bugünkü hareket</span></div></div>
+              <div class="mkart"><div><b>08:12</b><span class="gri-y">Son okutma</span></div></div>
+            </div>
+            <div class="qr-buton">QR Okut</div>
+            <div class="kb-kucuk">Bugün</div>
+            <div class="mkart liste">
+              <div class="sat"><span class="cz"></span><div>Montaj Hattı<div class="alt-y y-yesil">Giriş</div></div><span class="saat">08:12</span></div>
+              <div class="sat"><span class="cz k"></span><div>Depo<div class="alt-y y-kiremit">Çıkış</div></div><span class="saat">08:10</span></div>
+            </div>
+          </div>
+          <!--MENU personel ev-->
+        </div>
+        <div class="etiket">Ana Sayfa</div>
+      </div>
+      <div class="tel-kutu">
+        <div class="tel">
+          <!--DURUM siyah-->
+          <div class="kamera">
+            <div class="ust-ik"><span>←</span><span>⚡</span></div>
+            <div class="cerceve"></div>
+            <div class="yazi"><b>Bölüm QR kodunu okutun</b><span>Giriş mi çıkış mı olduğu mevcut durumunuza göre otomatik belirlenir.</span></div>
+          </div>
+          <!--MENU personel qr-->
+        </div>
+        <div class="etiket">QR Tara</div>
+      </div>
+      <div class="tel-kutu">
+        <div class="tel">
+          <!--DURUM-->
+          <div class="sonuc-ekrani" style="background:#2E7D4F">
+            <div class="ik-kare"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M10 17l5-5-5-5M15 12H3M14 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5"/></svg></div>
+            <div class="ust-y">Hoş geldiniz</div>
+            <div class="bas">Montaj Hattı</div>
+            <div class="sat">Giriş kaydedildi · 08:12</div>
+            <div class="sat">Çıkış için aynı QR kodu tekrar okutun.</div>
+            <div class="kapat">Kapatmak için ekrana dokunun</div>
+          </div>
+        </div>
+        <div class="etiket">Okutma Sonucu</div>
+      </div>
+      <div class="tel-kutu">
+        <div class="tel">
+          <!--DURUM-->
+          <div class="app-bar">Yönetim</div>
+          <div class="sekmeler"><span class="sec">Genel</span><span>Personeller</span><span>Bölümler</span><span>Hareketler</span></div>
+          <div class="ic">
+            <div class="ikili">
+              <div class="mkart" style="display:block"><b style="font-size:1.8em;color:#0E4A4F">24</b><span class="gri-y">Toplam personel</span></div>
+              <div class="mkart" style="display:block"><b style="font-size:1.8em;color:#2E7D4F">17</b><span class="gri-y">Şu an içeride</span></div>
+            </div>
+            <div class="bas-kucuk">Bölüm Durumu</div>
+            <div class="mkart" style="padding:7px 9px">
+              <div style="display:flex;justify-content:space-between"><b>Montaj Hattı</b><span>8 kişi</span></div><div class="bar"><i style="width:47%"></i></div>
+              <div style="display:flex;justify-content:space-between;margin-top:5px"><b>Depo</b><span>4 kişi</span></div><div class="bar"><i style="width:24%"></i></div>
+              <div style="display:flex;justify-content:space-between;margin-top:5px"><b>Kalite Kontrol</b><span>3 kişi</span></div><div class="bar"><i style="width:18%"></i></div>
+              <div style="display:flex;justify-content:space-between;margin-top:5px"><b>Ofis</b><span>2 kişi</span></div><div class="bar"><i style="width:12%"></i></div>
+            </div>
+            <div class="bas-kucuk">Son Hareketler</div>
+            <div class="mkart liste">
+              <div class="sat"><b style="width:26px">10:47</b><div>Ayşe Kaya<div class="alt-y gri-y">Montaj Hattı</div></div><span class="mrozet y" style="margin-left:auto">Giriş</span></div>
+              <div class="sat"><b style="width:26px">10:41</b><div>Mehmet Demir<div class="alt-y gri-y">Depo</div></div><span class="mrozet k" style="margin-left:auto">Çıkış</span></div>
+            </div>
+          </div>
+          <!--MENU yonetici yonetim-->
+        </div>
+        <div class="etiket">Yönetim · Genel</div>
+      </div>
+    </div>
+    <figcaption style="color:#CFE3E0"><span style="color:#D99A2B">Uygulamanın dört temel ekranı</span></figcaption>
+  </figure>
+
+  <h3>Tasarım Dili</h3>
+  <p>Arayüz, hazır şablonların bilinen mavi-beyaz görünümünden uzak durmak ve fabrika ortamına uyması için özel olarak tasarlandı. Renkler sanayideki uyarı levhalarından ve tabelalardan esinlendi; yazı tipi uzaktan ve hızlı bakışta okunacak şekilde seçildi.</p>
+  <div class="iki-kolon">
+    <div class="kart">
+      <h5>Renk paleti</h5>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;font-size:8pt">
+        <div><div style="height:34px;border-radius:7px;background:#0E4A4F"></div><b>Petrol</b><br>#0E4A4F · ana renk</div>
+        <div><div style="height:34px;border-radius:7px;background:#D99A2B"></div><b>Hardal</b><br>#D99A2B · QR, vurgu</div>
+        <div><div style="height:34px;border-radius:7px;background:#F4EFE4;border:1px solid #E2D9C6"></div><b>Krem</b><br>#F4EFE4 · zemin</div>
+        <div><div style="height:34px;border-radius:7px;background:#FFFCF6;border:1px solid #E2D9C6"></div><b>Kâğıt</b><br>#FFFCF6 · kart</div>
+        <div><div style="height:34px;border-radius:7px;background:#2E7D4F"></div><b>Yeşil</b><br>Giriş, içeride</div>
+        <div><div style="height:34px;border-radius:7px;background:#B4472F"></div><b>Kiremit</b><br>Çıkış, hata</div>
+        <div><div style="height:34px;border-radius:7px;background:#C98A1B"></div><b>Koyu hardal</b><br>Bilgi, otomatik</div>
+        <div><div style="height:34px;border-radius:7px;background:#6E6B60"></div><b>Sıcak gri</b><br>Açıklamalar</div>
+      </div>
+    </div>
+    <div class="kart">
+      <h5>Logo ve yazı tipi</h5>
+      <div style="display:flex;gap:10px;margin:8px 0">
+        <div style="flex:1;padding:12px;border-radius:9px;background:#FFFCF6;border:1px solid #E2D9C6"><!--LOGO 34 acik--></div>
+        <div style="flex:1;padding:12px;border-radius:9px;background:#0E4A4F"><!--LOGO 34 koyu--></div>
+      </div>
+      <p>Logodaki <b>W</b> harfinin köşelerindeki sarı çizgiler QR tarama çerçevesini anlatır. Logo resim dosyası değildir; uygulamada kodla çizilir.</p>
+      <p style="margin-top:6px"><span style="font-size:18pt;font-weight:500;color:#0E4A4F">Rubik</span> &nbsp;<span class="gri-y">Aa Ğğ Şş İı Öö Çç Üü 0123456789</span><br>Köşeleri hafifçe yuvarlatılmış, Türkçe karakterlerin tamamını içeren açık lisanslı bir yazı tipi. Uygulamanın içine gömülü olduğu için internet olmadan da görünür.</p>
+    </div>
+  </div>
+  <div class="kutu kavram"><div class="kb">Tasarım kuralları</div>
+    <ul>
+      <li><b>Personel ekranları büyük:</b> QR Okut butonu 72 piksel yüksekliğinde, okutma sonucu tam ekran ve renkli.</li>
+      <li><b>Yönetim ekranları sıkı:</b> kişiler ve bölümler çizgiyle ayrılmış listelerde, bir bakışta çok bilgi görünür.</li>
+      <li><b>Renk tek başına bilgi taşımaz:</b> giriş yeşil, çıkış kiremit renklidir ama yanında her zaman “Giriş / Çıkış” yazısı da bulunur.</li>
+      <li><b>Gölge yok:</b> kartlar ince bir kenar çizgisiyle ayrılır; küçük başlıklar tabela gibi büyük harfle yazılır.</li>
+    </ul></div>
+</section>

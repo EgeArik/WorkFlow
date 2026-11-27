@@ -1,0 +1,130 @@
+<!-- ======================= 2. ARAÇLAR VE YÖNTEMLER ======================= -->
+<section>
+  <div class="bolum-ac">
+    <span class="kose a"></span><span class="kose b"></span>
+    <div class="no">02</div>
+    <h1>Araçlar ve Yöntemler</h1>
+    <p>Projenin teknik detayları: kullanılan araçlar, gereksinimler, tasarım diyagramları, Firebase bağlantısı, önemli kodlar, ekranlar ve projenin çalışma mantığı.</p>
+  </div>
+
+  <p>WorkFlow; “Giriş/Kayıt”, “Ana Sayfa”, “QR Tara”, “Okutma Sonucu”, “Geçmiş”, “Profil”, “Şifre Değiştir” ekranları ile yöneticiye özel “Yönetim” sekmesindeki “Genel”, “Personeller”, “Bölümler”, “Hareketler” ve “Bölüm QR Kodu” ekranlarından oluşur. Toplam <b>13 ekran</b> bulunur.</p>
+  <div class="sayi-serit">
+    <div><b>13</b><span>ekran</span></div>
+    <div><b>33</b><span>Dart kaynak dosyası</span></div>
+    <div><b>~4.500</b><span>satır Dart kodu</span></div>
+    <div><b>3</b><span>veritabanı koleksiyonu</span></div>
+  </div>
+
+  <h2><span class="n">2.1</span> Kullanılan Araçlar ve Teknolojiler</h2>
+  <p>Proje, ücretsiz ve açık kaynaklı araçlarla geliştirildi. Hepsinin seçilme nedeni aşağıdaki tabloda yer alıyor.</p>
+  <table>
+    <tr><th style="width:150px">Araç / Teknoloji</th><th style="width:120px">Görevi</th><th>Neden seçildi?</th></tr>
+    <tr><td><b>Flutter</b></td><td>Arayüz çatısı</td><td>Google'ın geliştirdiği, tek kodla Android ve iOS uygulaması çıkaran çatıdır. Ekranlar “widget” adı verilen küçük parçaların birleşmesiyle kurulur; bu da ekranları düzenli ve tekrar kullanılabilir yapar.</td></tr>
+    <tr><td><b>Dart</b></td><td>Programlama dili</td><td>Flutter'ın dilidir. Nesne yönelimlidir, “null güvenliği” sayesinde boş değer hatalarını kod çalışmadan yakalar.</td></tr>
+    <tr><td><b>Visual Studio Code</b><br><b>Android Studio</b></td><td>Geliştirme ortamı (IDE)</td><td>Kodlar VS Code'da yazıldı. Android SDK, emülatör ve “adb” aracı Android Studio ile kuruldu. Testler gerçek bir Android telefonda yapıldı.</td></tr>
+    <tr><td><b>Firebase Authentication</b></td><td>Kullanıcı girişi</td><td>E-posta ve şifreyle hesap açma ve oturum yönetimi. Şifreler Google sunucularında güvenli biçimde saklanır; uygulamada veya veritabanında açık metin olarak tutulmaz.</td></tr>
+    <tr><td><b>Cloud Firestore</b></td><td>Veritabanı</td><td>Bulutta çalışan, gerçek zamanlı bir NoSQL veritabanıdır. Veri değiştiği anda dinleyen tüm telefonlara iletilir; ayrı bir sunucu yazmaya gerek kalmaz.</td></tr>
+    <tr><td><b>Firebase CLI</b></td><td>Kural ve indeks yükleme</td><td>Güvenlik kuralları ve veritabanı indeksleri proje klasöründeki dosyalardan tek komutla yayınlandı (<code>firebase deploy</code>).</td></tr>
+    <tr><td><b>Git ve GitHub</b></td><td>Sürüm kontrolü</td><td>Her geliştirme gününün sonunda anlamlı Türkçe mesajlarla kayıt (commit) alındı; yapılan her değişiklik geri izlenebilir. Proje deposu: <a href="https://github.com/EgeArik/WorkFlow">github.com/EgeArik/WorkFlow</a></td></tr>
+  </table>
+
+  <h3>Kullanılan Flutter paketleri</h3>
+  <table>
+    <tr><th style="width:170px">Paket</th><th>Ne için kullanıldı?</th></tr>
+    <tr><td><code>firebase_core</code></td><td>Uygulamayı Firebase projesine bağlar.</td></tr>
+    <tr><td><code>firebase_auth</code></td><td>Kayıt, giriş, çıkış ve şifre değiştirme.</td></tr>
+    <tr><td><code>cloud_firestore</code></td><td>Veritabanını okuma, yazma ve canlı dinleme.</td></tr>
+    <tr><td><code>mobile_scanner</code></td><td>Kameradan canlı QR okuma.</td></tr>
+    <tr><td><code>qr_flutter</code></td><td>Bölüm QR kodunu ekranda çizme.</td></tr>
+    <tr><td><code>pdf</code>, <code>printing</code></td><td>QR kodunu A4 PDF'e dönüştürme, kaydetme ve yazdırma.</td></tr>
+    <tr><td><code>permission_handler</code></td><td>Kamera izni reddedildiğinde telefonun ayarlar sayfasını açma.</td></tr>
+    <tr><td><code>connectivity_plus</code></td><td>İnternet bağlantısını izleyip “İnternet bağlantısı yok” şeridini gösterme.</td></tr>
+    <tr><td><code>flutter_localizations</code></td><td>Tarih seçici gibi hazır parçaların Türkçe görünmesi.</td></tr>
+  </table>
+
+  <h3>Uygulanan yöntemler</h3>
+  <div class="iki-kolon">
+    <div class="kutu kavram"><div class="kb">Yinelemeli (artımlı) geliştirme</div><p>Proje 7 günlük bir plana bölündü. Her gün uygulamaya çalışan yeni bir parça eklendi, telefonda denendi, hatalar düzeltildi ve kaydı alındı (bkz. 2.8).</p></div>
+    <div class="kutu kavram"><div class="kb">Katmanlı yapı</div><p>Ekranlar (arayüz), servisler (veritabanı işlemleri) ve modeller (veri sınıfları) ayrı klasörlerde tutuldu. Arayüz değişse bile veritabanı kodlarına dokunmak gerekmez.</p></div>
+    <div class="kutu kavram"><div class="kb">Sunucusuz mimari</div><p>Ayrı bir sunucu yazılmadı. Doğrulamalar Firestore <b>güvenlik kuralları</b> ve <b>transaction</b> (ya hep ya hiç işlem) ile yapıldı.</p></div>
+    <div class="kutu kavram"><div class="kb">Etkin kod yazımı</div><p>Türkçe ve anlamlı isimler (<code>qrOkut</code>, <code>Kullanici</code>), her fonksiyonun tek bir görevi olması, açıklama satırları ve kullanıcıya Türkçe hata mesajları.</p></div>
+  </div>
+
+  <h2><span class="n">2.2</span> Gereksinimler</h2>
+  <h3>Müşteri gereksinimleri</h3>
+  <p>Proje başında, bir fabrikanın ihtiyaçları düşünülerek aşağıdaki gereksinimler belirlendi:</p>
+  <ol>
+    <li>Personel, bölüm kapısındaki QR kodu okutarak giriş ve çıkış yapabilmeli; giriş mi çıkış mı olduğunu seçmek zorunda kalmamalı.</li>
+    <li>Bir bölümden çıkmadan başka bölüme geçen kişinin eski bölümden çıkışı otomatik yazılmalı.</li>
+    <li>Yönetici kimin hangi bölümde olduğunu ve bölümlerdeki kişi sayısını canlı görebilmeli.</li>
+    <li>Kayıtlarda saat, telefonun saati değiştirilerek oynanamayacak şekilde sunucudan alınmalı.</li>
+    <li>Çıkışı unutan kişi sonsuza kadar “içeride” görünmemeli.</li>
+    <li>Bölümler silinmemeli (eski kayıtlar bozulmasın); gerekirse pasif yapılabilmeli.</li>
+    <li>Her bölümün QR kodu, kapıya asılmak üzere A4 PDF olarak alınabilmeli.</li>
+    <li>Personel başkalarının verisini görememeli; kimse kendini yönetici yapamamalı.</li>
+  </ol>
+
+  <h3>Donanım ve yazılım gereksinimleri</h3>
+  <div class="iki-kolon">
+    <table style="margin:0">
+      <tr><th colspan="2">Kullanıcı tarafı</th></tr>
+      <tr><td>Cihaz</td><td>Kameralı Android telefon (Android 7.0 ve üstü)</td></tr>
+      <tr><td>Bağlantı</td><td>Wi-Fi veya mobil veri</td></tr>
+      <tr><td>İzin</td><td>Kamera izni (QR okumak için)</td></tr>
+      <tr><td>Kapılar</td><td>A4 kâğıda basılmış bölüm QR kodu</td></tr>
+    </table>
+    <table style="margin:0">
+      <tr><th colspan="2">Geliştirme tarafı</th></tr>
+      <tr><td>Bilgisayar</td><td>Windows 11, 8 GB+ RAM</td></tr>
+      <tr><td>Yazılım</td><td>Flutter SDK, Android SDK, VS Code, Git, Node.js (Firebase CLI için)</td></tr>
+      <tr><td>Bulut</td><td>Firebase projesi (ücretsiz Spark planı)</td></tr>
+      <tr><td>Test</td><td>USB hata ayıklaması açık Android telefon</td></tr>
+    </table>
+  </div>
+
+  <h3>Kullanım durumları</h3>
+  <p>Kullanım durumu diyagramı, sistemi kimlerin kullandığını ve her birinin hangi işlemleri yapabildiğini gösterir. Diyagramda işlemler iç içe iki kümede toplandı: <b>içteki petrol renkli küme</b> personelin yapabildiği işlemlerdir. <b>Dıştaki hardal renkli küme</b> yöneticinin erişebildiği her şeydir; personel kümesini de içine aldığı için yönetici, personelin tüm işlemlerini yapabilir ve bunlara ek olarak yönetime özel beş işlemi de yapar.</p>
+  <figure class="diyagram" id="g-kullanim">
+    <svg viewBox="0 0 720 420">
+      <!-- Yönetici kümesi (dış) -->
+      <rect x="128" y="14" width="464" height="392" rx="22" fill="#FBF1DC" stroke="#D99A2B" stroke-width="2"/>
+      <text x="580" y="38" text-anchor="end" font-size="12" font-weight="600" fill="#A8741A">YÖNETİCİNİN ERİŞEBİLDİKLERİ</text>
+      <!-- Personel kümesi (iç) -->
+      <rect x="146" y="52" width="222" height="340" rx="18" fill="#DCE7E4" stroke="#0E4A4F" stroke-width="2"/>
+      <text x="257" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E4A4F">PERSONELİN ERİŞEBİLDİKLERİ</text>
+      <g font-size="11" text-anchor="middle" fill="#1E2A2B">
+        <g fill="#FFFCF6" stroke="#0E4A4F" stroke-width="1.3">
+          <ellipse cx="257" cy="112" rx="94" ry="18"/><ellipse cx="257" cy="157" rx="94" ry="18"/>
+          <ellipse cx="257" cy="202" rx="94" ry="18" fill="#F3E2BF"/><ellipse cx="257" cy="247" rx="94" ry="18"/>
+          <ellipse cx="257" cy="292" rx="94" ry="18"/><ellipse cx="257" cy="337" rx="94" ry="18"/>
+        </g>
+        <text x="257" y="116">Kayıt ol</text><text x="257" y="161">Giriş yap</text>
+        <text x="257" y="206" font-weight="600">QR okut (giriş / çıkış)</text><text x="257" y="251">Durumunu görüntüle</text>
+        <text x="257" y="296">Geçmişini görüntüle</text><text x="257" y="341">Şifre değiştir</text>
+        <g fill="#FFFCF6" stroke="#D99A2B" stroke-width="1.3">
+          <ellipse cx="482" cy="112" rx="96" ry="18"/><ellipse cx="482" cy="167" rx="96" ry="18"/>
+          <ellipse cx="482" cy="222" rx="96" ry="18"/><ellipse cx="482" cy="277" rx="96" ry="18"/><ellipse cx="482" cy="332" rx="96" ry="18"/>
+        </g>
+        <text x="482" y="116">Genel durumu izle</text><text x="482" y="171">Personelleri ara / filtrele</text>
+        <text x="482" y="226">Bölüm ekle / pasif yap</text><text x="482" y="281">Bölüm QR'ını PDF al</text><text x="482" y="336">Hareket ve süreyi incele</text>
+      </g>
+      <!-- Aktörler -->
+      <g stroke="#0E4A4F" stroke-width="2.2" fill="none"><circle cx="60" cy="182" r="13"/><path d="M60 195v34M40 208h40M60 229l-16 24M60 229l16 24"/></g>
+      <text x="60" y="274" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0E4A4F">Personel</text>
+      <g stroke="#D99A2B" stroke-width="2.2" fill="none"><circle cx="660" cy="182" r="13"/><path d="M660 195v34M640 208h40M660 229l-16 24M660 229l16 24"/></g>
+      <text x="660" y="274" text-anchor="middle" font-size="12.5" font-weight="600" fill="#A8741A">Yönetici</text>
+      <!-- Aktör -> küme bağlantıları -->
+      <path d="M84 210 H144" stroke="#0E4A4F" stroke-width="2.4"/><circle cx="146" cy="210" r="4" fill="#0E4A4F"/>
+      <path d="M636 210 H594" stroke="#D99A2B" stroke-width="2.4"/><circle cx="592" cy="210" r="4" fill="#D99A2B"/>
+    </svg>
+    <figcaption>WorkFlow kullanım durumu diyagramı: iç içe yetki kümeleri</figcaption>
+  </figure>
+
+  <h3>Kullanıcı senaryoları</h3>
+  <div class="iki-kolon">
+    <div class="kart"><h5>Senaryo 1 · Güne başlama</h5><p>Ayşe sabah 08:12'de Montaj Hattı kapısındaki QR'ı okutur. Hiçbir bölümde olmadığı için sistem bunu <b>giriş</b> sayar; ekran yeşil olur ve “Hoş geldiniz · Montaj Hattı” yazar. Yöneticinin ekranında Montaj Hattı'nın kişi sayısı bir artar.</p></div>
+    <div class="kart"><h5>Senaryo 2 · Bölüm değiştirme</h5><p>Ayşe 10:30'da malzeme almak için Depo QR'ını okutur ama Montaj Hattı'ndan çıkış okutmayı unutmuştur. Sistem önce Montaj Hattı'ndan <b>otomatik çıkış</b>, sonra Depo'ya <b>giriş</b> yazar. Ekranda “Montaj Hattı → Depo” görünür.</p></div>
+    <div class="kart"><h5>Senaryo 3 · Çıkışı unutma</h5><p>Mehmet 08:00'de girer ve akşam çıkış okutmadan eve gider. Girişin üzerinden 9 saat geçince yönetici onu hemen “Dışarıda” görür; Mehmet'in telefonu da 17:00 zamanlı otomatik çıkış kaydını yazar.</p></div>
+    <div class="kart"><h5>Senaryo 4 · Yeni bölüm</h5><p>Yönetici “Kalite Kontrol” adında yeni bir bölüm ekler. Kaydedince bölümün QR ekranı kendiliğinden açılır; “PDF olarak indir / yazdır” ile A4 çıktısını alıp kapıya asar.</p></div>
+  </div>
+</section>
